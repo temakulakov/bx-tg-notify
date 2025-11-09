@@ -1,0 +1,43 @@
+name: Deploy to Remote
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          port: ${{ secrets.DEPLOY_PORT || '22' }}
+          envs: DEPLOY_PATH=${{ secrets.DEPLOY_PATH }}
+          script: |
+            set -euo pipefail
+
+            if [ -z "$DEPLOY_PATH" ]; then
+              echo "DEPLOY_PATH secret is not defined."
+              exit 1
+            fi
+
+            if [ ! -d "$DEPLOY_PATH/.git" ]; then
+              echo "Repository not found at $DEPLOY_PATH. Cloning..."
+              git clone git@github.com:temakulakov/bx-tg-notify.git "$DEPLOY_PATH"
+            fi
+
+            cd "$DEPLOY_PATH"
+            git fetch origin
+            git reset --hard origin/main
+
+            ENV_FILE=.production.env docker compose --env-file .production.env --profile production down
+            ENV_FILE=.production.env docker compose --env-file .production.env --profile production up --build -d
+
