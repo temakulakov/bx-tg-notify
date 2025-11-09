@@ -1,0 +1,89 @@
+export interface BitrixTime {
+  start: number;
+  finish: number;
+  duration: number;
+  processing: number;
+  date_start: string;
+  date_finish: string;
+  operating_reset_at: number;
+  operating: number;
+}
+
+export interface BitrixResponseBase {
+  next?: number;
+  total?: number;
+  time: BitrixTime;
+}
+
+export interface BitrixResponse<T> extends BitrixResponseBase {
+  result: T;
+}
+
+export interface BitrixUser {
+  ID: string;
+  NAME: string;
+  LAST_NAME: string;
+}
+
+interface BitrixInlineUser {
+  id: string;
+  name: string;
+  link: string;
+  icon: string;
+  workPosition: string;
+}
+
+export enum YesNoEnum {
+  Yes = 'Y',
+  No = 'N',
+}
+
+export interface BitrixTask {
+  id: string;
+  title: string;
+  description: string;
+  deadline: string; // ISO-строка с датой и временем
+  replicate: YesNoEnum;
+  createdBy: string;
+  responsibleId: string;
+  descriptionInBbcode: YesNoEnum;
+  favorite: YesNoEnum;
+  group: any[];
+
+  creator: BitrixInlineUser;
+  responsible: BitrixInlineUser;
+  action: object;
+}
+
+export interface BitrixDiskFile {
+  ID: number;
+  NAME: string;
+  CODE: string | null;
+  STORAGE_ID: number;
+  TYPE: 'file' | 'folder' | string; // тип enum, Bitrix обычно возвращает 'file' или 'folder'
+  PARENT_ID: number;
+  DELETED_TYPE: '0' | '1' | string; // enum, 0 = активный, 1 = удалён
+  GLOBAL_CONTENT_VERSION: number;
+  FILE_ID: number;
+  SIZE: number;
+  CREATE_TIME: string; // ISO 8601 datetime, пример: "2025-04-18T16:26:53+03:00"
+  UPDATE_TIME: string;
+  DELETE_TIME: string | null;
+  CREATED_BY: number;
+  UPDATED_BY: number;
+  DELETED_BY: number;
+  DOWNLOAD_URL: string;
+  DETAIL_URL: string;
+}
+
+export interface BitrixTaskComment {
+  ID: string;
+  POST_MESSAGE: string;
+  AUTHOR_ID: string;
+  AUTHOR_NAME?: string;
+  AUTHOR_LAST_NAME?: string;
+  POST_DATE?: string;
+  EDIT_DATE?: string;
+  UF_TASK_COMMENT_TYPE?: string;
+  UF_FORUM_MESSAGE_DOC?: unknown;
+}

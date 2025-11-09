@@ -1,0 +1,35 @@
+version: "3.9"
+
+services:
+  app:
+    build: .
+    container_name: nest_app
+    restart: always
+    env_file:
+      - ${ENV_FILE:-.development.env}
+    ports:
+      - "${APP_PORT:-3000}:${APP_PORT:-3000}" # если переменная не указана, используется 3000
+    depends_on:
+      - mysql
+    command: npm run start:prod
+    profiles:
+      - production
+
+  mysql:
+    image: mysql:8
+    container_name: nest_mysql
+    restart: always
+    env_file:
+      - ${ENV_FILE:-.development.env}
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASS} # root пароль
+      MYSQL_DATABASE: ${DB_NAME} # база данных
+      MYSQL_USER: ${DB_USER} # пользователь
+      MYSQL_PASSWORD: ${DB_PASS} # пароль пользователя
+    ports:
+      - "${DB_PORT}:${DB_PORT}"
+    volumes:
+      - db_data:/var/lib/mysql
+
+volumes:
+  db_data:

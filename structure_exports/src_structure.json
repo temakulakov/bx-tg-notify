@@ -1,0 +1,759 @@
+{
+  "project_info": {
+    "name": "src",
+    "path": "/Users/matsart/WebstormProjects/bitrix/src",
+    "generated_at": "2025-11-06T12:46:51.182737",
+    "total_files": 38,
+    "total_size": 30402
+  },
+  "structure": {
+    "comments": {
+      "comments.service.spec.ts": {
+        "type": "file",
+        "info": {
+          "size": 474,
+          "last_modified": "2025-11-06T12:46:51.140047",
+          "mime_type": "text/plain",
+          "extension": ".ts"
+        }
+      },
+      "comments.service.ts": {
+        "type": "file",
+        "info": {
+          "size": 92,
+          "last_modified": "2025-11-06T12:46:51.144055",
+          "mime_type": "text/plain",
+          "extension": ".ts"
+        }
+      },
+      "comments.module.ts": {
+        "type": "file",
+        "info": {
+          "size": 85,
+          "last_modified": "2025-11-06T12:46:51.146348",
+          "mime_type": "text/plain",
+          "extension": ".ts"
+        }
+      }
+    },
+    "tasks": {
+      "dto": {
+        "create-task.dto.ts": {
+          "type": "file",
+          "info": {
+            "size": 377,
+            "last_modified": "2025-11-06T12:46:51.148967",
+            "mime_type": "text/plain",
+            "extension": ".ts"
+          }
+        },
+        "update-task.dto.ts": {
+          "type": "file",
+          "info": {
+            "size": 169,
+            "last_modified": "2025-11-06T12:46:51.150321",
+            "mime_type": "text/plain",
+            "extension": ".ts"
+          }
+        }
+      },
+      "tasks.service.spec.ts": {
+        "type": "file",
+        "info": {
+          "size": 453,
+          "last_modified": "2025-11-06T12:46:51.152004",
+          "mime_type": "text/plain",
+          "extension": ".ts"
+        }
+      },
+      "tasks.module.ts": {
+        "type": "file",
+        "info": {
+          "size": 331,
+          "last_modified": "2025-11-06T12:46:51.152622",
+          "mime_type": "text/plain",
+          "extension": ".ts"
+        }
+      },
+      "tasks.service.ts": {
+        "type": "file",
+        "info": {
+          "size": 732,
+          "last_modified": "2025-11-06T12:46:51.153264",
+          "mime_type": "text/plain",
+          "extension": ".ts"
+        }
+      },
+      "tasks.controller.ts": {
+        "type": "file",
+        "info": {
+          "size": 894,
+          "last_modified": "2025-11-06T12:46:51.154128",
+          "mime_type": "text/plain",
+          "extension": ".ts"
+        }
+      },
+      "tasks.controller.spec.ts": {
+        "type": "file",
+        "info": {
+          "size": 566,
+          "last_modified": "2025-11-06T12:46:51.154787",
+          "mime_type": "text/plain",
+          "extension": ".ts"
+        }
+      },
+      "entities": {
+        "task.entity.ts": {
+          "type": "file",
+          "info": {
+            "size": 700,
+            "last_modified": "2025-11-06T12:46:51.155397",
+            "mime_type": "text/plain",
+            "extension": ".ts"
+          }
+        }
+      }
+    },
+    "main.ts": {
+      "type": "file",
+      "info": {
+        "size": 357,
+        "last_modified": "2025-11-06T12:46:51.156453",
+        "mime_type": "text/plain",
+        "extension": ".ts"
+      }
+    },
+    "typeorm.config.ts": {
+      "type": "file",
+      "info": {
+        "size": 559,
+        "last_modified": "2025-11-06T12:46:51.157052",
+        "mime_type": "text/plain",
+        "extension": ".ts"
+      }
+    },
+    "app.service.ts": {
+      "type": "file",
+      "info": {
+        "size": 729,
+        "last_modified": "2025-11-06T12:46:51.157797",
+        "mime_type": "text/plain",
+        "extension": ".ts"
+      }
+    },
+    "parser": {
+      "parser.service.ts": {
+        "type": "file",
+        "info": {
+          "size": 90,
+          "last_modified": "2025-11-06T12:46:51.158569",
+          "mime_type": "text/plain",
+          "extension": ".ts"
+        }
+      },
+      "parser.module.ts": {
+        "type": "file",
+        "info": {
+          "size": 164,
+          "last_modified": "2025-11-06T12:46:51.159233",
+          "mime_type": "text/plain",
+          "extension": ".ts"
+        }
+      },
+      "parser.service.spec.ts": {
+        "type": "file",
+        "info": {
+          "size": 460,
+          "last_modified": "2025-11-06T12:46:51.159882",
+          "mime_type": "text/plain",
+          "extension": ".ts"
+        }
+      }
+    },
+    "app.module.ts": {
+      "type": "file",
+      "info": {
+        "size": 1237,
+        "last_modified": "2025-11-06T12:46:51.161037",
+        "mime_type": "text/plain",
+        "extension": ".ts"
+      }
+    },
+    "app.controller.spec.ts": {
+      "type": "file",
+      "info": {
+        "size": 632,
+        "last_modified": "2025-11-06T12:46:51.162056",
+        "mime_type": "text/plain",
+        "extension": ".ts"
+      }
+    },
+    "users": {
+      "dto": {
+        "update-user.dto.ts": {
+          "type": "file",
+          "info": {
+            "size": 169,
+            "last_modified": "2025-11-06T12:46:51.163127",
+            "mime_type": "text/plain",
+            "extension": ".ts"
+          }
+        },
+        "create-user.dto.ts": {
+          "type": "file",
+          "info": {
+            "size": 189,
+            "last_modified": "2025-11-06T12:46:51.164142",
+            "mime_type": "text/plain",
+            "extension": ".ts"
+          }
+        }
+      },
+      "users.service.ts": {
+        "type": "file",
+        "info": {
+          "size": 3158,
+          "last_modified": "2025-11-06T12:46:51.16551",
+          "mime_type": "text/plain",
+          "extension": ".ts"
+        }
+      },
+      "users.module.ts": {
+        "type": "file",
+        "info": {
+          "size": 627,
+          "last_modified": "2025-11-06T12:46:51.16656",
+          "mime_type": "text/plain",
+          "extension": ".ts"
+        }
+      },
+      "users.service.spec.ts": {
+        "type": "file",
+        "info": {
+          "size": 453,
+          "last_modified": "2025-11-06T12:46:51.167806",
+          "mime_type": "text/plain",
+          "extension": ".ts"
+        }
+      },
+      "users.sync.service.ts": {
+        "type": "file",
+        "info": {
+          "size": 3381,
+          "last_modified": "2025-11-06T12:46:51.168956",
+          "mime_type": "text/plain",
+          "extension": ".ts"
+        }
+      },
+      "entities": {
+        "user.entity.ts": {
+          "type": "file",
+          "info": {
+            "size": 648,
+            "last_modified": "2025-11-06T12:46:51.169968",
+            "mime_type": "text/plain",
+            "extension": ".ts"
+          }
+        }
+      }
+    },
+    "bitrix": {
+      "dto": {
+        "bitrix-webhook.dto.ts": {
+          "type": "file",
+          "info": {
+            "size": 1789,
+            "last_modified": "2025-11-06T12:46:51.171589",
+            "mime_type": "text/plain",
+            "extension": ".ts"
+          }
+        }
+      },
+      "bitrix.controller.spec.ts": {
+        "type": "file",
+        "info": {
+          "size": 492,
+          "last_modified": "2025-11-06T12:46:51.172819",
+          "mime_type": "text/plain",
+          "extension": ".ts"
+        }
+      },
+      "bitrix.controller.ts": {
+        "type": "file",
+        "info": {
+          "size": 1424,
+          "last_modified": "2025-11-06T12:46:51.173659",
+          "mime_type": "text/plain",
+          "extension": ".ts"
+        }
+      },
+      "bitrix-token.guard.ts": {
+        "type": "file",
+        "info": {
+          "size": 1046,
+          "last_modified": "2025-11-06T12:46:51.174488",
+          "mime_type": "text/plain",
+          "extension": ".ts"
+        }
+      },
+      "constants": {
+        "bitrix-methods.enum.ts": {
+          "type": "file",
+          "info": {
+            "size": 358,
+            "last_modified": "2025-11-06T12:46:51.175333",
+            "mime_type": "text/plain",
+            "extension": ".ts"
+          }
+        }
+      },
+      "bitrix-webhook.service.ts": {
+        "type": "file",
+        "info": {
+          "size": 173,
+          "last_modified": "2025-11-06T12:46:51.176457",
+          "mime_type": "text/plain",
+          "extension": ".ts"
+        }
+      },
+      "bitrix-http.service.ts": {
+        "type": "file",
+        "info": {
+          "size": 3458,
+          "last_modified": "2025-11-06T12:46:51.177259",
+          "mime_type": "text/plain",
+          "extension": ".ts"
+        }
+      },
+      "bitrix.module.ts": {
+        "type": "file",
+        "info": {
+          "size": 1588,
+          "last_modified": "2025-11-06T12:46:51.178109",
+          "mime_type": "text/plain",
+          "extension": ".ts"
+        }
+      },
+      "bitrix.service.ts": {
+        "type": "file",
+        "info": {
+          "size": 915,
+          "last_modified": "2025-11-06T12:46:51.178922",
+          "mime_type": "text/plain",
+          "extension": ".ts"
+        }
+      },
+      "entities": {
+        "bitrix-response.type.ts": {
+          "type": "file",
+          "info": {
+            "size": 1020,
+            "last_modified": "2025-11-06T12:46:51.179739",
+            "mime_type": "text/plain",
+            "extension": ".ts"
+          }
+        },
+        "bitrix.entity.ts": {
+          "type": "file",
+          "info": {
+            "size": 23,
+            "last_modified": "2025-11-06T12:46:51.180685",
+            "mime_type": "text/plain",
+            "extension": ".ts"
+          }
+        }
+      }
+    },
+    "app.controller.ts": {
+      "type": "file",
+      "info": {
+        "size": 390,
+        "last_modified": "2025-11-06T12:46:51.181978",
+        "mime_type": "text/plain",
+        "extension": ".ts"
+      }
+    }
+  },
+  "files": [
+    {
+      "path": "comments/comments.service.spec.ts",
+      "content": "import { Test, TestingModule } from '@nestjs/testing';\nimport { CommentsService } from './comments.service';\n\ndescribe('CommentsService', () => {\n  let service: CommentsService;\n\n  beforeEach(async () => {\n    const module: TestingModule = await Test.createTestingModule({\n      providers: [CommentsService],\n    }).compile();\n\n    service = module.get<CommentsService>(CommentsService);\n  });\n\n  it('should be defined', () => {\n    expect(service).toBeDefined();\n  });\n});\n",
+      "info": {
+        "size": 474,
+        "last_modified": "2025-11-06T12:46:51.140047",
+        "mime_type": "text/plain",
+        "extension": ".ts"
+      }
+    },
+    {
+      "path": "comments/comments.service.ts",
+      "content": "import { Injectable } from '@nestjs/common';\n\n@Injectable()\nexport class CommentsService {}\n",
+      "info": {
+        "size": 92,
+        "last_modified": "2025-11-06T12:46:51.144055",
+        "mime_type": "text/plain",
+        "extension": ".ts"
+      }
+    },
+    {
+      "path": "comments/comments.module.ts",
+      "content": "import { Module } from '@nestjs/common';\n\n@Module({})\nexport class CommentsModule {}\n",
+      "info": {
+        "size": 85,
+        "last_modified": "2025-11-06T12:46:51.146348",
+        "mime_type": "text/plain",
+        "extension": ".ts"
+      }
+    },
+    {
+      "path": "tasks/dto/create-task.dto.ts",
+      "content": "import {\n  IsInt,\n  IsNotEmpty,\n  IsOptional,\n  IsString,\n  IsArray,\n  IsDateString,\n} from 'class-validator';\n\nexport class CreateTaskDto {\n  @IsInt()\n  bitrixId: number;\n\n  @IsString()\n  @IsNotEmpty()\n  description: string;\n\n  @IsOptional()\n  @IsDateString()\n  deadline?: string;\n\n  @IsArray()\n  @IsNotEmpty()\n  responsible_ids: number[];\n\n  @IsInt()\n  created_by: number;\n}\n",
+      "info": {
+        "size": 377,
+        "last_modified": "2025-11-06T12:46:51.148967",
+        "mime_type": "text/plain",
+        "extension": ".ts"
+      }
+    },
+    {
+      "path": "tasks/dto/update-task.dto.ts",
+      "content": "import { PartialType } from '@nestjs/mapped-types';\nimport { CreateTaskDto } from './create-task.dto';\n\nexport class UpdateTaskDto extends PartialType(CreateTaskDto) {}\n",
+      "info": {
+        "size": 169,
+        "last_modified": "2025-11-06T12:46:51.150321",
+        "mime_type": "text/plain",
+        "extension": ".ts"
+      }
+    },
+    {
+      "path": "tasks/tasks.service.spec.ts",
+      "content": "import { Test, TestingModule } from '@nestjs/testing';\nimport { TasksService } from './tasks.service';\n\ndescribe('TasksService', () => {\n  let service: TasksService;\n\n  beforeEach(async () => {\n    const module: TestingModule = await Test.createTestingModule({\n      providers: [TasksService],\n    }).compile();\n\n    service = module.get<TasksService>(TasksService);\n  });\n\n  it('should be defined', () => {\n    expect(service).toBeDefined();\n  });\n});\n",
+      "info": {
+        "size": 453,
+        "last_modified": "2025-11-06T12:46:51.152004",
+        "mime_type": "text/plain",
+        "extension": ".ts"
+      }
+    },
+    {
+      "path": "tasks/tasks.module.ts",
+      "content": "import { Module } from '@nestjs/common';\nimport { TasksService } from './tasks.service';\nimport { TasksController } from './tasks.controller';\nimport { BitrixModule } from '../bitrix/bitrix.module';\n\n@Module({\n  controllers: [TasksController],\n  providers: [TasksService],\n  imports: [BitrixModule],\n})\nexport class TasksModule {}\n",
+      "info": {
+        "size": 331,
+        "last_modified": "2025-11-06T12:46:51.152622",
+        "mime_type": "text/plain",
+        "extension": ".ts"
+      }
+    },
+    {
+      "path": "tasks/tasks.service.ts",
+      "content": "import { Injectable } from '@nestjs/common';\nimport { CreateTaskDto } from './dto/create-task.dto';\nimport { UpdateTaskDto } from './dto/update-task.dto';\nimport { BitrixService } from '../bitrix/bitrix.service';\n\n@Injectable()\nexport class TasksService {\n  constructor(private readonly bitrixService: BitrixService) {}\n\n  create(createTaskDto: CreateTaskDto) {\n    return 'This action adds a new task';\n  }\n\n  findAll() {\n    return `This action returns all tasks`;\n  }\n\n  findOne(id: number) {\n    return `This action returns a #${id} task`;\n  }\n\n  update(id: number, updateTaskDto: UpdateTaskDto) {\n    return `This action updates a #${id} task`;\n  }\n\n  remove(id: number) {\n    return `This action removes a #${id} task`;\n  }\n}\n",
+      "info": {
+        "size": 732,
+        "last_modified": "2025-11-06T12:46:51.153264",
+        "mime_type": "text/plain",
+        "extension": ".ts"
+      }
+    },
+    {
+      "path": "tasks/tasks.controller.ts",
+      "content": "import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';\nimport { TasksService } from './tasks.service';\nimport { CreateTaskDto } from './dto/create-task.dto';\nimport { UpdateTaskDto } from './dto/update-task.dto';\n\n@Controller('tasks')\nexport class TasksController {\n  constructor(private readonly tasksService: TasksService) {}\n\n  @Post()\n  create(@Body() createTaskDto: CreateTaskDto) {\n    return this.tasksService.create(createTaskDto);\n  }\n\n  @Get()\n  findAll() {\n    return this.tasksService.findAll();\n  }\n\n  @Get(':id')\n  findOne(@Param('id') id: string) {\n    return this.tasksService.findOne(+id);\n  }\n\n  @Patch(':id')\n  update(@Param('id') id: string, @Body() updateTaskDto: UpdateTaskDto) {\n    return this.tasksService.update(+id, updateTaskDto);\n  }\n\n  @Delete(':id')\n  remove(@Param('id') id: string) {\n    return this.tasksService.remove(+id);\n  }\n}\n",
+      "info": {
+        "size": 894,
+        "last_modified": "2025-11-06T12:46:51.154128",
+        "mime_type": "text/plain",
+        "extension": ".ts"
+      }
+    },
+    {
+      "path": "tasks/tasks.controller.spec.ts",
+      "content": "import { Test, TestingModule } from '@nestjs/testing';\nimport { TasksController } from './tasks.controller';\nimport { TasksService } from './tasks.service';\n\ndescribe('TasksController', () => {\n  let controller: TasksController;\n\n  beforeEach(async () => {\n    const module: TestingModule = await Test.createTestingModule({\n      controllers: [TasksController],\n      providers: [TasksService],\n    }).compile();\n\n    controller = module.get<TasksController>(TasksController);\n  });\n\n  it('should be defined', () => {\n    expect(controller).toBeDefined();\n  });\n});\n",
+      "info": {
+        "size": 566,
+        "last_modified": "2025-11-06T12:46:51.154787",
+        "mime_type": "text/plain",
+        "extension": ".ts"
+      }
+    },
+    {
+      "path": "tasks/entities/task.entity.ts",
+      "content": "import {\n  Column,\n  CreateDateColumn,\n  Entity,\n  PrimaryGeneratedColumn,\n  Unique,\n  UpdateDateColumn,\n} from 'typeorm';\n\n@Entity('tasks')\n@Unique(['id'])\nexport class Task {\n  @PrimaryGeneratedColumn()\n  id: number;\n\n  @Column({ type: 'int' })\n  bitrixId: number;\n\n  @Column({ type: 'varchar', length: 555 })\n  description: string;\n\n  @Column({ type: 'datetime', nullable: true })\n  deadline: Date;\n\n  @Column({ type: 'simple-json', nullable: false })\n  responsible_ids: number[];\n\n  @Column({ type: 'int' })\n  created_by: number;\n\n  @CreateDateColumn({ type: 'datetime', name: 'created_at' })\n  createdAt: Date;\n\n  @UpdateDateColumn({ type: 'datetime', name: 'updated_at' })\n  updatedAt: Date;\n}\n",
+      "info": {
+        "size": 700,
+        "last_modified": "2025-11-06T12:46:51.155397",
+        "mime_type": "text/plain",
+        "extension": ".ts"
+      }
+    },
+    {
+      "path": "main.ts",
+      "content": "import { NestFactory } from '@nestjs/core';\nimport { AppModule } from './app.module';\nimport * as bodyParser from 'body-parser';\n\nasync function bootstrap() {\n  const app = await NestFactory.create(AppModule);\n\n  app.use(bodyParser.urlencoded({ extended: true }));\n  app.use(bodyParser.json());\n\n  await app.listen(process.env.PORT ?? 3000);\n}\nbootstrap();\n",
+      "info": {
+        "size": 357,
+        "last_modified": "2025-11-06T12:46:51.156453",
+        "mime_type": "text/plain",
+        "extension": ".ts"
+      }
+    },
+    {
+      "path": "typeorm.config.ts",
+      "content": "import { TypeOrmModuleOptions } from '@nestjs/typeorm';\nimport { ConfigService } from '@nestjs/config';\n\nexport const typeOrmConfig = (\n  configService: ConfigService,\n): TypeOrmModuleOptions => ({\n  type: 'mysql',\n  host: configService.get<string>('DB_HOST'),\n  port: configService.get<number>('DB_PORT'),\n  username: configService.get<string>('DB_USER'),\n  password: configService.get<string>('DB_PASS'),\n  database: configService.get<string>('DB_NAME'),\n  autoLoadEntities: true,\n  synchronize: configService.get<string>('NODE_ENV') === 'development',\n});\n",
+      "info": {
+        "size": 559,
+        "last_modified": "2025-11-06T12:46:51.157052",
+        "mime_type": "text/plain",
+        "extension": ".ts"
+      }
+    },
+    {
+      "path": "app.service.ts",
+      "content": "import { Injectable } from '@nestjs/common';\nimport { BitrixService } from './bitrix/bitrix.service';\nimport {\n  BitrixResponse,\n  BitrixUser,\n} from './bitrix/entities/bitrix-response.type';\nimport { UsersService } from './users/users.service';\n\n@Injectable()\nexport class AppService {\n  constructor(\n    private readonly bitrixService: BitrixService,\n    private userService: UsersService,\n  ) {}\n\n  async getHello() {\n    const a: BitrixResponse<BitrixUser[]> = await this.bitrixService.getUsers();\n    a.result.map((user: BitrixUser) => {\n      this.userService.create({\n        bitrixId: parseInt(user.ID),\n        name: `${user.LAST_NAME} ${user.LAST_NAME}`,\n      });\n    });\n\n    return this.userService.findAll();\n  }\n}\n",
+      "info": {
+        "size": 729,
+        "last_modified": "2025-11-06T12:46:51.157797",
+        "mime_type": "text/plain",
+        "extension": ".ts"
+      }
+    },
+    {
+      "path": "parser/parser.service.ts",
+      "content": "import { Injectable } from '@nestjs/common';\n\n@Injectable()\nexport class ParserService {}\n",
+      "info": {
+        "size": 90,
+        "last_modified": "2025-11-06T12:46:51.158569",
+        "mime_type": "text/plain",
+        "extension": ".ts"
+      }
+    },
+    {
+      "path": "parser/parser.module.ts",
+      "content": "import { Module } from '@nestjs/common';\nimport { ParserService } from './parser.service';\n\n@Module({\n  providers: [ParserService],\n})\nexport class ParserModule {}\n",
+      "info": {
+        "size": 164,
+        "last_modified": "2025-11-06T12:46:51.159233",
+        "mime_type": "text/plain",
+        "extension": ".ts"
+      }
+    },
+    {
+      "path": "parser/parser.service.spec.ts",
+      "content": "import { Test, TestingModule } from '@nestjs/testing';\nimport { ParserService } from './parser.service';\n\ndescribe('ParserService', () => {\n  let service: ParserService;\n\n  beforeEach(async () => {\n    const module: TestingModule = await Test.createTestingModule({\n      providers: [ParserService],\n    }).compile();\n\n    service = module.get<ParserService>(ParserService);\n  });\n\n  it('should be defined', () => {\n    expect(service).toBeDefined();\n  });\n});\n",
+      "info": {
+        "size": 460,
+        "last_modified": "2025-11-06T12:46:51.159882",
+        "mime_type": "text/plain",
+        "extension": ".ts"
+      }
+    },
+    {
+      "path": "app.module.ts",
+      "content": "import { Module } from '@nestjs/common';\nimport { AppController } from './app.controller';\nimport { AppService } from './app.service';\nimport { ConfigModule, ConfigService } from '@nestjs/config';\nimport { TypeOrmModule } from '@nestjs/typeorm';\nimport { typeOrmConfig } from './typeorm.config';\nimport { UsersModule } from './users/users.module';\nimport { BitrixModule } from './bitrix/bitrix.module';\nimport { DataSource } from 'typeorm';\nimport { ScheduleModule } from '@nestjs/schedule';\nimport { TasksModule } from './tasks/tasks.module';\nimport { CommentsService } from './comments/comments.service';\nimport { CommentsModule } from './comments/comments.module';\nimport { ParserModule } from './parser/parser.module';\n\n@Module({\n  imports: [\n    ConfigModule.forRoot({\n      envFilePath: '.development.env',\n    }),\n    ScheduleModule.forRoot(),\n    TypeOrmModule.forRootAsync({\n      imports: [ConfigModule],\n      inject: [ConfigService],\n      useFactory: typeOrmConfig,\n    }),\n    UsersModule,\n    BitrixModule,\n    TasksModule,\n    CommentsModule,\n    ParserModule,\n  ],\n  controllers: [AppController],\n  providers: [AppService, CommentsService],\n})\nexport class AppModule {\n  constructor(private dataSource: DataSource) {}\n}\n",
+      "info": {
+        "size": 1237,
+        "last_modified": "2025-11-06T12:46:51.161037",
+        "mime_type": "text/plain",
+        "extension": ".ts"
+      }
+    },
+    {
+      "path": "app.controller.spec.ts",
+      "content": "import { Test, TestingModule } from '@nestjs/testing';\nimport { AppController } from './app.controller';\nimport { AppService } from './app.service';\n\ndescribe('AppController', () => {\n  let appController: AppController;\n\n  beforeEach(async () => {\n    const app: TestingModule = await Test.createTestingModule({\n      controllers: [AppController],\n      providers: [AppService],\n    }).compile();\n\n    appController = app.get<AppController>(AppController);\n  });\n\n  // describe('root', () => {\n  //   it('should return \"Hello World!\"', () => {\n  //     expect(appController.getHello()).toBe('Hello World!');\n  //   });\n  // });\n});\n",
+      "info": {
+        "size": 632,
+        "last_modified": "2025-11-06T12:46:51.162056",
+        "mime_type": "text/plain",
+        "extension": ".ts"
+      }
+    },
+    {
+      "path": "users/dto/update-user.dto.ts",
+      "content": "import { PartialType } from '@nestjs/mapped-types';\nimport { CreateUserDto } from './create-user.dto';\n\nexport class UpdateUserDto extends PartialType(CreateUserDto) {}\n",
+      "info": {
+        "size": 169,
+        "last_modified": "2025-11-06T12:46:51.163127",
+        "mime_type": "text/plain",
+        "extension": ".ts"
+      }
+    },
+    {
+      "path": "users/dto/create-user.dto.ts",
+      "content": "import { IsInt, IsNotEmpty, IsString } from 'class-validator';\n\nexport class CreateUserDto {\n  @IsInt()\n  @IsNotEmpty()\n  bitrixId: number;\n\n  @IsString()\n  @IsNotEmpty()\n  name: string;\n}\n",
+      "info": {
+        "size": 189,
+        "last_modified": "2025-11-06T12:46:51.164142",
+        "mime_type": "text/plain",
+        "extension": ".ts"
+      }
+    },
+    {
+      "path": "users/users.service.ts",
+      "content": "import { BadRequestException, Injectable, Logger } from '@nestjs/common';\nimport { InjectRepository } from '@nestjs/typeorm';\nimport { User } from './entities/user.entity';\nimport { Repository } from 'typeorm';\nimport { CreateUserDto } from './dto/create-user.dto';\n\n@Injectable()\nexport class UsersService {\n  private readonly logger = new Logger(UsersService.name);\n  constructor(\n    @InjectRepository(User) private readonly userRepository: Repository<User>,\n  ) {}\n\n  async create(dto: CreateUserDto) {\n    const userExists = await this.checkIfUserExists(dto.bitrixId);\n\n    if (userExists) {\n      this.logger.error(\n        `Пользователь с Bitrix ID ${dto.bitrixId} уже существует`,\n      );\n      return false;\n    }\n\n    this.userRepository.save({\n      bitrix_id: dto.bitrixId,\n      name: dto.name,\n      telegram_ids: [],\n    });\n    this.logger.debug(`Пользователь с Bitrix ID ${dto.bitrixId} создан`);\n    return true;\n  }\n\n  private async checkIfUserExists(bitrixId: number): Promise<boolean> {\n    const user = await this.userRepository.findOneBy({ bitrix_id: bitrixId });\n    return !!user;\n  }\n\n  async findAll() {\n    const result = await this.userRepository.find();\n    return result;\n  }\n\n  async findOne(id: number) {\n    const user = this.userRepository.findOneBy({ bitrix_id: id });\n    if (user === null) {\n      throw new BadRequestException(`Пользователь с id ${id} не найден`);\n    }\n    return user;\n  }\n\n  /**\n   * Обновление данных пользователя\n   * @param bitrixId — ID пользователя из Bitrix\n   * @param updateData — объект с обновляемыми данными\n   */\n  async update(bitrixId: number, updateData: Partial<User>): Promise<User> {\n    // 1️⃣ Проверка наличия пользователя\n    const user = await this.userRepository.findOneBy({ bitrix_id: bitrixId });\n\n    if (!user) {\n      this.logger.warn(`Пользователь с Bitrix ID ${bitrixId} не найден`);\n      throw new BadRequestException(`Пользователь с ID ${bitrixId} не найден`);\n    }\n\n    // 2️⃣ Формируем данные для обновления\n    const updatedUser = this.userRepository.merge(user, updateData);\n\n    try {\n      // 3️⃣ Сохраняем изменения\n      const savedUser = await this.userRepository.save(updatedUser);\n\n      // 4️⃣ Логируем результат\n      this.logger.debug(\n        `Пользователь с Bitrix ID ${bitrixId} обновлён: ${JSON.stringify(updateData)}`,\n      );\n\n      // 5️⃣ Возвращаем обновлённые данные (актуальные после save)\n      return savedUser;\n    } catch (error) {\n      this.logger.error(\n        `Ошибка при обновлении пользователя ${bitrixId}: ${error.message}`,\n      );\n      throw new BadRequestException('Ошибка при обновлении пользователя');\n    }\n  }\n\n  async remove(id: number): Promise<void> {\n    await this.userRepository.delete(id);\n  }\n}\n",
+      "info": {
+        "size": 3158,
+        "last_modified": "2025-11-06T12:46:51.16551",
+        "mime_type": "text/plain",
+        "extension": ".ts"
+      }
+    },
+    {
+      "path": "users/users.module.ts",
+      "content": "import { Module } from '@nestjs/common';\nimport { UsersService } from './users.service';\nimport { TypeOrmModule } from '@nestjs/typeorm';\nimport { User } from './entities/user.entity';\nimport { UsersSyncService } from './users.sync.service';\nimport { ScheduleModule } from '@nestjs/schedule';\nimport { BitrixService } from '../bitrix/bitrix.service';\nimport { BitrixModule } from '../bitrix/bitrix.module';\n\n@Module({\n  imports: [\n    TypeOrmModule.forFeature([User]),\n    ScheduleModule.forRoot(),\n    BitrixModule,\n  ],\n  providers: [UsersService, UsersSyncService],\n  exports: [UsersService],\n})\nexport class UsersModule {}\n",
+      "info": {
+        "size": 627,
+        "last_modified": "2025-11-06T12:46:51.16656",
+        "mime_type": "text/plain",
+        "extension": ".ts"
+      }
+    },
+    {
+      "path": "users/users.service.spec.ts",
+      "content": "import { Test, TestingModule } from '@nestjs/testing';\nimport { UsersService } from './users.service';\n\ndescribe('UsersService', () => {\n  let service: UsersService;\n\n  beforeEach(async () => {\n    const module: TestingModule = await Test.createTestingModule({\n      providers: [UsersService],\n    }).compile();\n\n    service = module.get<UsersService>(UsersService);\n  });\n\n  it('should be defined', () => {\n    expect(service).toBeDefined();\n  });\n});\n",
+      "info": {
+        "size": 453,
+        "last_modified": "2025-11-06T12:46:51.167806",
+        "mime_type": "text/plain",
+        "extension": ".ts"
+      }
+    },
+    {
+      "path": "users/users.sync.service.ts",
+      "content": "import { Injectable, Logger } from '@nestjs/common';\nimport { Cron, CronExpression } from '@nestjs/schedule';\nimport { UsersService } from './users.service';\nimport { BitrixService } from '../bitrix/bitrix.service';\n\n@Injectable()\nexport class UsersSyncService {\n  private readonly logger = new Logger(UsersSyncService.name);\n\n  constructor(\n    private readonly usersService: UsersService,\n    private readonly bitrixService: BitrixService,\n  ) {}\n\n  /**\n   * 🕒 Запуск синхронизации каждую минуту\n   */\n  @Cron(CronExpression.EVERY_MINUTE)\n  async syncUsers(): Promise<void> {\n    this.logger.log('🔄 Начало синхронизации пользователей с Bitrix24...');\n\n    try {\n      // 1️⃣ Получаем пользователей из Bitrix\n      const bitrixResponse = await this.bitrixService.getUsers();\n      const bitrixUsers = bitrixResponse.result || [];\n\n      if (!Array.isArray(bitrixUsers)) {\n        this.logger.error('❌ Неверный формат ответа Bitrix24');\n        return;\n      }\n\n      // 2️⃣ Получаем текущих пользователей из БД\n      const dbUsers = await this.usersService.findAll();\n\n      // 3️⃣ Преобразуем данные в удобные структуры\n      const bitrixIds = bitrixUsers.map((u) => Number(u.ID));\n      const dbIds = dbUsers.map((u) => u.bitrix_id);\n\n      // 4️⃣ Добавляем новых пользователей\n      const newUsers = bitrixUsers.filter((u) => !dbIds.includes(Number(u.ID)));\n\n      for (const newUser of newUsers) {\n        await this.usersService.create({\n          bitrixId: Number(newUser.ID),\n          name: `${newUser.NAME} ${newUser.LAST_NAME || ''}`.trim(),\n        });\n      }\n\n      // 5️⃣ Обновляем имена изменившихся пользователей\n      for (const dbUser of dbUsers) {\n        const bitrixUser = bitrixUsers.find(\n          (u) => Number(u.ID) === dbUser.bitrix_id,\n        );\n\n        if (bitrixUser) {\n          const fullName =\n            `${bitrixUser.NAME} ${bitrixUser.LAST_NAME || ''}`.trim();\n          if (dbUser.name !== fullName) {\n            await this.usersService.update(dbUser.bitrix_id, {\n              name: fullName,\n            });\n            this.logger.debug(\n              `✏️ Имя пользователя ${dbUser.bitrix_id} обновлено: \"${dbUser.name}\" → \"${fullName}\"`,\n            );\n          }\n        }\n      }\n\n      // 6️⃣ Удаляем пользователей, которых больше нет в Bitrix\n      const usersToDelete = dbUsers.filter(\n        (dbUser) => !bitrixIds.includes(dbUser.bitrix_id),\n      );\n\n      for (const user of usersToDelete) {\n        await this.usersService.remove(user.id);\n        this.logger.warn(\n          `🗑 Пользователь с Bitrix ID ${user.bitrix_id} удалён из базы (нет в Bitrix)`,\n        );\n      }\n\n      this.logger.log(\n        `✅ Синхронизация завершена: добавлено ${newUsers.length}, обновлено ${bitrixUsers.length - usersToDelete.length - newUsers.length}, удалено ${usersToDelete.length}`,\n      );\n    } catch (error) {\n      this.logger.error(`❌ Ошибка синхронизации: ${error.message}`);\n    }\n  }\n}\n",
+      "info": {
+        "size": 3381,
+        "last_modified": "2025-11-06T12:46:51.168956",
+        "mime_type": "text/plain",
+        "extension": ".ts"
+      }
+    },
+    {
+      "path": "users/entities/user.entity.ts",
+      "content": "import {\n  Entity,\n  PrimaryGeneratedColumn,\n  Column,\n  Unique,\n  CreateDateColumn,\n  UpdateDateColumn,\n} from 'typeorm';\n\n@Entity('users_shebo')\n@Unique(['bitrix_id']) // уникальность на уровне таблицы\nexport class User {\n  @PrimaryGeneratedColumn()\n  id: number;\n\n  @Column({ type: 'int' })\n  bitrix_id: number;\n\n  @Column({ type: 'simple-json', nullable: false })\n  telegram_ids: number[];\n\n  @Column({ type: 'varchar', length: 255 })\n  name: string;\n\n  @CreateDateColumn({ type: 'datetime', name: 'created_at' })\n  createdAt: Date;\n\n  @UpdateDateColumn({ type: 'datetime', name: 'updated_at' })\n  updatedAt: Date;\n}\n",
+      "info": {
+        "size": 648,
+        "last_modified": "2025-11-06T12:46:51.169968",
+        "mime_type": "text/plain",
+        "extension": ".ts"
+      }
+    },
+    {
+      "path": "bitrix/dto/bitrix-webhook.dto.ts",
+      "content": "import {\n  IsEnum,\n  IsInt,\n  IsNotEmpty,\n  IsOptional,\n  IsString,\n  IsUrl,\n  ValidateNested,\n} from 'class-validator';\nimport { Type } from 'class-transformer';\n\nexport enum BitrixWebhookType {\n  OnTaskCommentAdd = 'ONTASKCOMMENTADD',\n  OnTaskAdd = 'ONTASKADD',\n  OnTaskUpdate = 'ONTASKUPDATE',\n}\n\nexport enum BitrixWebhookTypeNumber {\n  OnTaskCommentAdd = 112,\n  OnTaskAdd = 106,\n  OnTaskUpdate = 108,\n}\n\n/**\n * Вложенный объект auth[...] — служебная информация о портале Bitrix24\n */\nexport class BitrixWebhookAuth {\n  @IsString()\n  @IsNotEmpty()\n  domain: string;\n\n  @IsUrl()\n  client_endpoint: string;\n\n  @IsUrl()\n  server_endpoint: string;\n\n  @IsString()\n  @IsNotEmpty()\n  member_id: string;\n\n  @IsString()\n  @IsNotEmpty()\n  application_token: string;\n}\n\n/**\n * data[FIELDS_BEFORE] / data[FIELDS_AFTER]\n */\nexport class BitrixTaskFields {\n  @IsOptional()\n  @IsInt()\n  ID?: number;\n\n  @IsOptional()\n  @IsInt()\n  TASK_ID?: number;\n}\n\n/**\n * data[...] структура\n */\nexport class BitrixWebhookData {\n  @IsOptional()\n  @ValidateNested()\n  @Type(() => BitrixTaskFields)\n  FIELDS_BEFORE?: BitrixTaskFields;\n\n  @IsOptional()\n  @ValidateNested()\n  @Type(() => BitrixTaskFields)\n  FIELDS_AFTER?: BitrixTaskFields;\n\n  @IsOptional()\n  @IsString()\n  IS_ACCESSIBLE_BEFORE?: string;\n\n  @IsOptional()\n  @IsString()\n  IS_ACCESSIBLE_AFTER?: string;\n}\n\n/**\n * Основной DTO для любого вебхука Bitrix24\n */\nexport class BitrixWebhookDto {\n  @IsEnum(BitrixWebhookType)\n  event: BitrixWebhookType;\n\n  @IsInt()\n  event_handler_id: number;\n\n  @ValidateNested()\n  @Type(() => BitrixWebhookData)\n  data: BitrixWebhookData;\n\n  @IsInt()\n  ts: number;\n\n  @ValidateNested()\n  @Type(() => BitrixWebhookAuth)\n  auth: BitrixWebhookAuth;\n}\n",
+      "info": {
+        "size": 1789,
+        "last_modified": "2025-11-06T12:46:51.171589",
+        "mime_type": "text/plain",
+        "extension": ".ts"
+      }
+    },
+    {
+      "path": "bitrix/bitrix.controller.spec.ts",
+      "content": "import { Test, TestingModule } from '@nestjs/testing';\nimport { BitrixController } from './bitrix.controller';\n\ndescribe('BitrixController', () => {\n  let controller: BitrixController;\n\n  beforeEach(async () => {\n    const module: TestingModule = await Test.createTestingModule({\n      controllers: [BitrixController],\n    }).compile();\n\n    controller = module.get<BitrixController>(BitrixController);\n  });\n\n  it('should be defined', () => {\n    expect(controller).toBeDefined();\n  });\n});\n",
+      "info": {
+        "size": 492,
+        "last_modified": "2025-11-06T12:46:51.172819",
+        "mime_type": "text/plain",
+        "extension": ".ts"
+      }
+    },
+    {
+      "path": "bitrix/bitrix.controller.ts",
+      "content": "// bitrix.controller.ts\nimport { Body, Controller, Post, Logger, UseGuards } from '@nestjs/common';\nimport { BitrixWebhookService } from './bitrix-webhook.service';\nimport { BitrixWebhookDto, BitrixWebhookType } from './dto/bitrix-webhook.dto';\nimport { ConfigService } from '@nestjs/config';\nimport { BitrixTokenGuard } from './bitrix-token.guard';\n\n@Controller('webhook/bitrix24')\nexport class BitrixController {\n  private readonly logger = new Logger(BitrixController.name);\n\n  constructor(\n    private readonly webhookService: BitrixWebhookService,\n    private readonly configService: ConfigService,\n  ) {}\n\n  handlers: Record<BitrixWebhookType, () => void> = {\n    [BitrixWebhookType.OnTaskAdd]: () => console.log('Добавлена задача'),\n    [BitrixWebhookType.OnTaskUpdate]: () => console.log('Обновлена задача'),\n    [BitrixWebhookType.OnTaskCommentAdd]: () =>\n      console.log('Добавлен комментарий'),\n  };\n\n  @Post()\n  @UseGuards(BitrixTokenGuard)\n  handleWebhook(@Body() dto: BitrixWebhookDto) {\n    this.logger.log(`Получен вебхук: ${dto.event}`);\n\n    const handler = this.handlers[dto.event];\n\n    if (!handler) {\n      this.logger.warn(`⚠️ Неизвестный тип события: ${dto.event}`);\n      return {\n        success: false,\n        message: 'Unhandled event type',\n        event: dto.event,\n      };\n    }\n\n    return dto;\n  }\n}\n",
+      "info": {
+        "size": 1424,
+        "last_modified": "2025-11-06T12:46:51.173659",
+        "mime_type": "text/plain",
+        "extension": ".ts"
+      }
+    },
+    {
+      "path": "bitrix/bitrix-token.guard.ts",
+      "content": "import {\n  Injectable,\n  CanActivate,\n  ExecutionContext,\n  Logger,\n  ForbiddenException,\n} from '@nestjs/common';\nimport { ConfigService } from '@nestjs/config';\nimport { Request } from 'express';\nimport { BitrixWebhookDto } from './dto/bitrix-webhook.dto';\n\n@Injectable()\nexport class BitrixTokenGuard implements CanActivate {\n  private readonly logger = new Logger(BitrixTokenGuard.name);\n\n  constructor(private readonly configService: ConfigService) {}\n\n  canActivate(context: ExecutionContext): boolean {\n    const request = context.switchToHttp().getRequest<Request>();\n    const body = request.body as BitrixWebhookDto;\n\n    const expectedToken = this.configService.get<string>('BX24_OUTGOING_TOKEN');\n\n    if (\n      !body?.auth?.application_token ||\n      body.auth.application_token !== expectedToken\n    ) {\n      this.logger.warn(\n        `⚠️ Не пройдена проверка токена: ${body?.auth?.application_token}`,\n      );\n      throw new ForbiddenException('Invalid Bitrix token');\n    }\n\n    return true;\n  }\n}\n",
+      "info": {
+        "size": 1046,
+        "last_modified": "2025-11-06T12:46:51.174488",
+        "mime_type": "text/plain",
+        "extension": ".ts"
+      }
+    },
+    {
+      "path": "bitrix/constants/bitrix-methods.enum.ts",
+      "content": "export enum BitrixMethod {\n  // --- Пользователи ---\n  USER_GET = 'user.get',\n\n  // --- Проверка пользователя ---\n  PROFILE = 'user.profile',\n\n  // --- Получить задачу ---\n  TASK = 'tasks.task.get',\n\n  // --- Получить комментарий к задаче ---\n  TASK_COMMENT = 'task.commentitem.get',\n}\n",
+      "info": {
+        "size": 358,
+        "last_modified": "2025-11-06T12:46:51.175333",
+        "mime_type": "text/plain",
+        "extension": ".ts"
+      }
+    },
+    {
+      "path": "bitrix/bitrix-webhook.service.ts",
+      "content": "import { Injectable, Logger } from '@nestjs/common';\n\n@Injectable()\nexport class BitrixWebhookService {\n  private readonly logger = new Logger(BitrixWebhookService.name);\n}\n",
+      "info": {
+        "size": 173,
+        "last_modified": "2025-11-06T12:46:51.176457",
+        "mime_type": "text/plain",
+        "extension": ".ts"
+      }
+    },
+    {
+      "path": "bitrix/bitrix-http.service.ts",
+      "content": "import { Injectable, Logger } from '@nestjs/common';\nimport { HttpService } from '@nestjs/axios';\nimport { AxiosError, AxiosResponse } from 'axios';\nimport { firstValueFrom } from 'rxjs';\nimport { BitrixResponse } from './entities/bitrix-response.type';\n\n@Injectable()\nexport class BitrixHttpService {\n  private readonly logger = new Logger(BitrixHttpService.name);\n\n  constructor(private readonly httpService: HttpService) {\n    const axiosRef = this.httpService.axiosRef;\n\n    axiosRef.interceptors.request.use((config) => {\n      this.logger.debug(\n        `[${config.method?.toUpperCase()}] ${config.baseURL}${config.url}`,\n      );\n      if (config.data)\n        this.logger.verbose(`Request data: ${JSON.stringify(config.data)}`);\n      return config;\n    });\n\n    axiosRef.interceptors.response.use(\n      (response: AxiosResponse<BitrixResponse<any>>) => {\n        const time = response.data?.time;\n        if (time) {\n          this.logger.debug(\n            `✅ Bitrix responded in ${time.duration.toFixed(2)}s (processing: ${time.processing.toFixed(2)}s)`,\n          );\n        } else {\n          this.logger.debug(`✅ Bitrix response ${response.status}`);\n        }\n        return response;\n      },\n      (error: AxiosError) => {\n        const message = error.response\n          ? `❌ Bitrix error [${error.response.status}] ${error.response.statusText}`\n          : `❌ Network error: ${error.message}`;\n        this.logger.error(message);\n\n        if (error.response?.data) {\n          this.logger.verbose(\n            `Error response: ${JSON.stringify(error.response.data)}`,\n          );\n        }\n\n        return Promise.reject(error);\n      },\n    );\n  }\n\n  async post<T>(\n    method: string,\n    data?: Record<string, any>,\n  ): Promise<BitrixResponse<T>> {\n    const response: AxiosResponse<BitrixResponse<T>> = await firstValueFrom(\n      this.httpService.post(method, data),\n    );\n    return response.data;\n  }\n  /**\n   * 🚀 Метод для получения всех данных, если Bitrix возвращает `next`\n   */\n  async getAll<T>(\n    method: string,\n    params?: Record<string, unknown>,\n  ): Promise<BitrixResponse<T[]>> {\n    const allResults: T[] = [];\n    let start = 0;\n    let lastResponse: BitrixResponse<T[]> | null = null;\n    const maxIterations = 1000; // защита от бесконечного цикла\n\n    this.logger.debug(\n      `📦 Начинаем загрузку всех данных по методу ${method}...`,\n    );\n\n    for (let i = 0; i < maxIterations; i++) {\n      const response = await this.post<T[]>(method, {\n        ...params,\n        start,\n      });\n\n      if (Array.isArray(response.result)) {\n        allResults.push(...response.result);\n      } else {\n        this.logger.warn(\n          `⚠️ Ожидался массив, но получен другой тип данных: ${typeof response.result}`,\n        );\n        break;\n      }\n\n      lastResponse = response;\n\n      if (response.next === undefined) {\n        this.logger.debug(\n          `✅ Все данные получены (${allResults.length} элементов, ${i + 1} запросов)`,\n        );\n        break;\n      }\n\n      start = response.next;\n    }\n\n    if (!lastResponse) {\n      throw new Error(`❌ Не удалось получить данные по методу ${method}`);\n    }\n\n    return {\n      ...lastResponse,\n      result: allResults,\n    };\n  }\n}\n",
+      "info": {
+        "size": 3458,
+        "last_modified": "2025-11-06T12:46:51.177259",
+        "mime_type": "text/plain",
+        "extension": ".ts"
+      }
+    },
+    {
+      "path": "bitrix/bitrix.module.ts",
+      "content": "import { Logger, Module } from '@nestjs/common';\nimport { BitrixService } from './bitrix.service';\nimport { HttpModule } from '@nestjs/axios';\nimport { ConfigModule, ConfigService } from '@nestjs/config';\nimport { BitrixController } from './bitrix.controller';\nimport { BitrixHttpService } from './bitrix-http.service';\nimport { BitrixWebhookService } from './bitrix-webhook.service';\n\n@Module({\n  providers: [BitrixService, BitrixHttpService, BitrixWebhookService],\n  exports: [BitrixService],\n  imports: [\n    HttpModule.registerAsync({\n      imports: [ConfigModule],\n      inject: [ConfigService],\n      useFactory: (configService: ConfigService) => {\n        const logger = new Logger(BitrixHttpService.name);\n        const domain = configService.get<string>('BX24_DOMAIN');\n        const userId = configService.get<string>('BX24_INCOMING_USER');\n        const token = configService.get<string>('BX24_INCOMING_TOKEN');\n\n        if (!domain || !userId || !token) {\n          // Лучше логировать предупреждение, если что-то не задано\n          logger.debug(\n            '⚠️  BITRIX_DOMAIN, BITRIX_USER_ID или BITRIX_TOKEN не заданы в .env',\n          );\n        }\n\n        return {\n          baseURL: `${domain}/rest/${userId}/${token}/`,\n          timeout: 8000,\n          headers: {\n            'Content-Type': 'application/json',\n          },\n          validateStatus: (status: number) => status < 500,\n        };\n      },\n    }),\n    ConfigModule,\n  ],\n  controllers: [BitrixController],\n})\nexport class BitrixModule {}\n",
+      "info": {
+        "size": 1588,
+        "last_modified": "2025-11-06T12:46:51.178109",
+        "mime_type": "text/plain",
+        "extension": ".ts"
+      }
+    },
+    {
+      "path": "bitrix/bitrix.service.ts",
+      "content": "import { Injectable } from '@nestjs/common';\nimport { BitrixHttpService } from './bitrix-http.service';\nimport {\n  BitrixResponse,\n  BitrixTask,\n  BitrixUser,\n} from './entities/bitrix-response.type';\nimport { BitrixMethod } from './constants/bitrix-methods.enum';\n\n@Injectable()\nexport class BitrixService {\n  constructor(private readonly bitrixHttp: BitrixHttpService) {}\n\n  async getUsers(): Promise<BitrixResponse<BitrixUser[]>> {\n    return this.bitrixHttp.getAll<BitrixUser>(BitrixMethod.USER_GET, {\n      select: ['ID', 'NAME', 'LAST_NAME'],\n      filter: { ACTIVE: 'Y' },\n    });\n  }\n\n  async getTask(id: number): Promise<BitrixResponse<{ task: BitrixTask }>> {\n    return this.bitrixHttp.post(BitrixMethod.TASK, {\n      id,\n      select: [\n        'ID',\n        'TITLE',\n        'DESCRIPTION',\n        'DEADLINE',\n        'REPLICATE',\n        'CREATED_BY',\n        'RESPONSIBLE_ID',\n      ],\n    });\n  }\n}\n",
+      "info": {
+        "size": 915,
+        "last_modified": "2025-11-06T12:46:51.178922",
+        "mime_type": "text/plain",
+        "extension": ".ts"
+      }
+    },
+    {
+      "path": "bitrix/entities/bitrix-response.type.ts",
+      "content": "export interface BitrixTime {\n  start: number;\n  finish: number;\n  duration: number;\n  processing: number;\n  date_start: string;\n  date_finish: string;\n  operating_reset_at: number;\n  operating: number;\n}\n\nexport interface BitrixResponseBase {\n  next?: number;\n  total?: number;\n  time: BitrixTime;\n}\n\nexport interface BitrixResponse<T> extends BitrixResponseBase {\n  result: T;\n}\n\nexport interface BitrixUser {\n  ID: string;\n  NAME: string;\n  LAST_NAME: string;\n}\n\ninterface BitrixInlineUser {\n  id: string;\n  name: string;\n  link: string;\n  icon: string;\n  workPosition: string;\n}\n\nexport enum YesNoEnum {\n  Yes = 'Y',\n  No = 'N',\n}\n\nexport interface BitrixTask {\n  id: string;\n  title: string;\n  description: string;\n  deadline: string; // ISO-строка с датой и временем\n  replicate: YesNoEnum;\n  createdBy: string;\n  responsibleId: string;\n  descriptionInBbcode: YesNoEnum;\n  favorite: YesNoEnum;\n  group: any[];\n\n  creator: BitrixInlineUser;\n  responsible: BitrixInlineUser;\n  action: object;\n}\n",
+      "info": {
+        "size": 1020,
+        "last_modified": "2025-11-06T12:46:51.179739",
+        "mime_type": "text/plain",
+        "extension": ".ts"
+      }
+    },
+    {
+      "path": "bitrix/entities/bitrix.entity.ts",
+      "content": "export class Bitrix {}\n",
+      "info": {
+        "size": 23,
+        "last_modified": "2025-11-06T12:46:51.180685",
+        "mime_type": "text/plain",
+        "extension": ".ts"
+      }
+    },
+    {
+      "path": "app.controller.ts",
+      "content": "import { Controller, Get } from '@nestjs/common';\nimport { AppService } from './app.service';\nimport { BitrixService } from './bitrix/bitrix.service';\n\n@Controller()\nexport class AppController {\n  constructor(\n    private readonly appService: AppService,\n    private readonly bitrixService: BitrixService,\n  ) {}\n\n  @Get()\n  getHello() {\n    return this.bitrixService.getTask(20124);\n  }\n}\n",
+      "info": {
+        "size": 390,
+        "last_modified": "2025-11-06T12:46:51.181978",
+        "mime_type": "text/plain",
+        "extension": ".ts"
+      }
+    }
+  ]
+}
