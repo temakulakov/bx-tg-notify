@@ -46,6 +46,12 @@ lerna-debug.log*
 .staging.env
 !.example.env
 
+# Database dumps
+*.sql
+
+# Generated structure exports
+structure_exports/
+
 # temp directory
 .temp
 .tmp
