@@ -134,10 +134,18 @@ export class WebhookService {
   }
 
   async handleDocumentApproval(query: DocumentApprovalQuery): Promise<void> {
+    this.logger.log(
+      `[DocumentApproval] Начало обработки запроса: ${JSON.stringify(query)}`,
+    );
+
     const receiverId = this.extractUserId(query.receiver);
     const senderId = this.extractUserId(query.sender);
     const documentId = query.document?.toString().trim();
     const description = query.description ?? '';
+
+    this.logger.log(
+      `[DocumentApproval] Распарсенные данные: receiverId=${receiverId}, senderId=${senderId}, documentId="${documentId}", descriptionLength=${description.length}`,
+    );
 
     if (!receiverId) {
       this.logger.warn(
@@ -153,6 +161,10 @@ export class WebhookService {
       return;
     }
 
+    this.logger.log(
+      `[DocumentApproval] Отправка уведомления получателю ${receiverId} от отправителя ${senderId ?? 'неизвестного'}`,
+    );
+
     await this.telegramService.notifyDocumentApproval({
       receiverId,
       senderId: senderId ?? undefined,
@@ -163,15 +175,23 @@ export class WebhookService {
 
   private extractUserId(value?: string): number | null {
     if (!value) {
+      this.logger.debug(`[extractUserId] Пустое значение, возвращаю null`);
       return null;
     }
 
     const match = value.match(/(\d+)/);
     if (!match) {
+      this.logger.debug(
+        `[extractUserId] Не найдено числа в значении "${value}", возвращаю null`,
+      );
       return null;
     }
 
     const userId = Number(match[1]);
-    return Number.isFinite(userId) ? userId : null;
+    const result = Number.isFinite(userId) ? userId : null;
+    this.logger.debug(
+      `[extractUserId] Извлечен ID из "${value}": ${result}`,
+    );
+    return result;
   }
 }

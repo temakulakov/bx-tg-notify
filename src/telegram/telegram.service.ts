@@ -284,11 +284,21 @@ export class TelegramService implements OnModuleInit {
   }): Promise<void> {
     const { receiverId, senderId, description, documentId } = params;
 
+    this.logger.log(
+      `[DocumentApproval] Поиск Telegram-чатов для получателя Bitrix ID ${receiverId}`,
+    );
+
+    // Для document-approval получатель ВСЕГДА должен получить уведомление,
+    // независимо от того, кто отправитель
     const recipients =
       await this.usersService.getTelegramChatIdsForBitrixUsers(
         [receiverId],
-        senderId,
+        undefined, // Не исключаем отправителя, так как получатель должен всегда получить уведомление
       );
+
+    this.logger.log(
+      `[DocumentApproval] Найдено Telegram-чатов для получателя ${receiverId}: ${recipients.length} (${recipients.join(', ')})`,
+    );
 
     if (!recipients.length) {
       this.logger.warn(
@@ -343,7 +353,18 @@ export class TelegramService implements OnModuleInit {
       .filter((part) => part !== null && part !== undefined)
       .join('\n');
 
+    this.logger.log(
+      `[DocumentApproval] Отправка сообщения в ${recipients.length} чат(ов): ${recipients.join(', ')}`,
+    );
+    this.logger.debug(
+      `[DocumentApproval] Текст сообщения (первые 200 символов): ${message.substring(0, 200)}...`,
+    );
+
     await this.sendToRecipients(recipients, message);
+
+    this.logger.log(
+      `[DocumentApproval] Уведомление о документе ${documentId} успешно отправлено`,
+    );
   }
 
   async getBotInfo() {
