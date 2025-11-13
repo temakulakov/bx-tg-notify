@@ -1,0 +1,1244 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Bitrix Monitor</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, var(--tg-theme-bg-color, #f5f7fa) 0%, var(--tg-theme-secondary-bg-color, #e8ecf1) 100%);
+            color: var(--tg-theme-text-color, #1a1a1a);
+            padding: 0;
+            min-height: 100vh;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Улучшенная контрастность для темной темы */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: linear-gradient(135deg, var(--tg-theme-bg-color, #0e0e0d) 0%, var(--tg-theme-secondary-bg-color, #1a1a1a) 100%);
+                color: #f5f5f5;
+            }
+        }
+
+        .container {
+            max-width: 100%;
+            padding: 16px;
+            position: relative;
+        }
+
+        /* Отступ снизу только если есть вкладки (для админов) */
+        body:has(.tabs) .container {
+            padding-bottom: 100px;
+        }
+
+        .tabs {
+            position: fixed;
+            bottom: 16px;
+            left: 16px;
+            right: 16px;
+            display: flex;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.98);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 20px;
+            padding: 8px;
+            padding-bottom: max(8px, calc(8px + env(safe-area-inset-bottom)));
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15), 0 2px 8px rgba(0, 0, 0, 0.1);
+            z-index: 10000;
+            backdrop-filter: blur(2px) saturate(105%);
+            -webkit-backdrop-filter: blur(2px) saturate(105%);
+            will-change: transform;
+            opacity: 0;
+            transform: translateY(calc(100% + 32px));
+            animation: slideUpFromBottom 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        .tabs::before {
+            content: '';
+            position: absolute;
+            top: 8px;
+            bottom: 8px;
+            left: 8px;
+            width: calc(50% - 12px);
+            background: linear-gradient(135deg, rgba(51, 144, 236, 0.15) 0%, rgba(51, 144, 236, 0.1) 100%);
+            border-radius: 14px;
+            transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .tabs.tab-phrases-active::before {
+            left: calc(50% + 4px);
+            width: calc(50% - 12px);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .tabs {
+                background: rgba(26, 26, 26, 0.98);
+                border-color: rgba(255, 255, 255, 0.15);
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 2px 8px rgba(0, 0, 0, 0.4);
+            }
+
+            .tabs::before {
+                background: linear-gradient(135deg, rgba(51, 144, 236, 0.25) 0%, rgba(51, 144, 236, 0.15) 100%);
+            }
+        }
+
+        .tab {
+            flex: 1;
+            padding: 14px 20px;
+            background: transparent;
+            border: none;
+            color: var(--tg-theme-hint-color, #6c757d);
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            border-radius: 14px;
+            transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+            -webkit-touch-callout: none;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            z-index: 1;
+        }
+
+        .tab:active {
+            transform: scale(0.95);
+        }
+
+        .tab.active {
+            color: var(--tg-theme-button-color, #3390ec);
+        }
+
+        .tab:focus {
+            outline: none;
+        }
+
+        .tab-content {
+            display: none;
+            padding-bottom: 20px;
+            opacity: 0;
+            transform: translateX(20px);
+            transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .tab-content.active {
+            display: block;
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .tab-content.animating {
+            animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideUpFromBottom {
+            0% {
+                opacity: 0;
+                transform: translateY(calc(100% + 32px));
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            20% {
+                transform: translateX(-2px);
+            }
+
+            40% {
+                transform: translateX(2px);
+            }
+
+            60% {
+                transform: translateX(-2px);
+            }
+
+            80% {
+                transform: translateX(2px);
+            }
+        }
+
+        .tab-content.shaking {
+            animation: shake 0.8s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+        }
+
+        .status-card {
+            background: var(--tg-theme-secondary-bg-color, #ffffff);
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        .status-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, rgba(51, 144, 236, 0.3), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .status-card:hover::before {
+            opacity: 1;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .status-card {
+                background: var(--tg-theme-secondary-bg-color, #1a1a1a);
+                border-color: rgba(255, 255, 255, 0.1);
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0, 0, 0, 0.2);
+            }
+        }
+
+        .status-card:active {
+            transform: scale(0.97);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .status-card:focus {
+            outline: none;
+        }
+
+        .status-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .status-title {
+            font-weight: bold;
+            font-size: 16px;
+            color: var(--tg-theme-text-color, #000000);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .status-title {
+                color: #f5f5f5;
+            }
+        }
+
+        .status-badge {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-ok {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #ffffff;
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+        }
+
+        .status-error {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: #ffffff;
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+        }
+
+        .status-warning {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: #ffffff;
+            box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+        }
+
+        .status-details {
+            font-size: 14px;
+            color: var(--tg-theme-hint-color, #999999);
+            margin-top: 8px;
+            line-height: 1.5;
+        }
+
+        /* Улучшенная читаемость для темной темы */
+        .status-details {
+            color: var(--tg-theme-hint-color, #999999);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .status-details {
+                color: #b0b0b0;
+            }
+
+            .status-details div[style*="border-top"] {
+                border-top-color: rgba(255, 255, 255, 0.1) !important;
+            }
+
+            .status-details div[style*="background: rgba(0,0,0,0.1)"] {
+                background: rgba(255, 255, 255, 0.1) !important;
+            }
+        }
+
+        .phrase-item {
+            background: var(--tg-theme-secondary-bg-color, #ffffff);
+            border-radius: 16px;
+            padding: 18px 20px;
+            margin-bottom: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .phrase-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(180deg, var(--tg-theme-button-color, #3390ec), #2563eb);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .phrase-item:hover::before {
+            opacity: 1;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .phrase-item {
+                background: var(--tg-theme-secondary-bg-color, #1a1a1a);
+                border-color: rgba(255, 255, 255, 0.1);
+                box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.2);
+            }
+        }
+
+        .phrase-item:active {
+            transform: scale(0.97);
+            box-shadow: 0 1px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .phrase-text {
+            flex: 1;
+            margin-right: 10px;
+            color: var(--tg-theme-text-color, #000000);
+            font-weight: 500;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .phrase-text {
+                color: #f5f5f5;
+            }
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+            -webkit-touch-callout: none;
+            user-select: none;
+            position: relative;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 10px;
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+
+        .btn:active::before {
+            opacity: 1;
+        }
+
+        .btn:focus {
+            outline: none;
+        }
+
+        .btn::-moz-focus-inner {
+            border: 0;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--tg-theme-button-color, #3390ec) 0%, #2563eb 100%);
+            color: var(--tg-theme-button-text-color, #ffffff);
+        }
+
+        .btn-primary:active {
+            transform: translateY(1px);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+        }
+
+        .btn-danger:active {
+            transform: translateY(1px);
+            box-shadow: 0 1px 4px rgba(239, 68, 68, 0.3);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid var(--tg-theme-hint-color, #e5e7eb);
+            border-radius: 12px;
+            font-size: 15px;
+            background: var(--tg-theme-bg-color, #ffffff);
+            color: var(--tg-theme-text-color, #000000);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .form-input {
+                border-color: rgba(255, 255, 255, 0.1);
+                background: var(--tg-theme-bg-color, #0e0e0d);
+            }
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--tg-theme-button-color, #3390ec);
+            box-shadow: 0 0 0 3px rgba(51, 144, 236, 0.1);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--tg-theme-hint-color, #999999);
+        }
+    </style>
+</head>
+
+<body>
+    {{#if isAdmin}}
+    <div class="tabs">
+        <button class="tab active" onclick="switchTab('status')">📊 Статус</button>
+        <button class="tab" onclick="switchTab('phrases')">📝 Фразы</button>
+    </div>
+    {{/if}}
+    <div class="container">
+
+        {{#if error}}
+        <div id="error-message" style="padding: 20px; text-align: center; color: var(--tg-theme-hint-color, #999999);">
+            <p style="color: #dc3545; font-weight: bold;">{{error}}</p>
+            <p style="margin-top: 10px; font-size: 14px; color: var(--tg-theme-text-color, #000000);">Откройте Web App
+                через Telegram бота</p>
+            {{#if hasInitData}}
+            <p style="margin-top: 10px; font-size: 12px; color: var(--tg-theme-hint-color, #666);">initData получен, но
+                валидация не прошла.
+                Проверьте логи сервера.</p>
+            {{else}}
+            <p style="margin-top: 10px; font-size: 12px; color: var(--tg-theme-hint-color, #666);">initData отсутствует.
+                Убедитесь, что открываете
+                через Telegram бота.</p>
+            {{/if}}
+        </div>
+        {{else}}
+        <div id="status-tab" class="tab-content active">
+            {{#if serverStatus.database}}
+            <div class="status-card" onclick="handleStatusCardClick(this)">
+                <div class="status-header">
+                    <span class="status-title">База данных</span>
+                    <span class="status-badge status-{{serverStatus.database.status}}">
+                        {{#if serverStatus.database.isOk}}✅{{/if}}
+                        {{#if serverStatus.database.isError}}❌{{/if}}
+                        {{#if serverStatus.database.isWarning}}⚠️{{/if}}
+                    </span>
+                </div>
+                <div class="status-details">{{serverStatus.database.message}}</div>
+            </div>
+            {{/if}}
+
+            {{#if serverStatus.telegram}}
+            <div class="status-card" onclick="handleStatusCardClick(this)">
+                <div class="status-header">
+                    <span class="status-title">Telegram бот</span>
+                    <span class="status-badge status-{{serverStatus.telegram.status}}">
+                        {{#if serverStatus.telegram.isOk}}✅{{/if}}
+                        {{#if serverStatus.telegram.isError}}❌{{/if}}
+                        {{#if serverStatus.telegram.isWarning}}⚠️{{/if}}
+                    </span>
+                </div>
+                <div class="status-details">{{serverStatus.telegram.message}}</div>
+            </div>
+            {{/if}}
+
+            {{#if serverStatus.bitrix}}
+            <div class="status-card" onclick="handleStatusCardClick(this)">
+                <div class="status-header">
+                    <span class="status-title">Bitrix24 API</span>
+                    <span class="status-badge status-{{serverStatus.bitrix.status}}">
+                        {{#if serverStatus.bitrix.isOk}}✅{{/if}}
+                        {{#if serverStatus.bitrix.isError}}❌{{/if}}
+                        {{#if serverStatus.bitrix.isWarning}}⚠️{{/if}}
+                    </span>
+                </div>
+                <div class="status-details">{{serverStatus.bitrix.message}}</div>
+            </div>
+            {{/if}}
+
+            {{#if serverStatus.server}}
+            <div class="status-card" onclick="handleStatusCardClick(this)">
+                <div class="status-header">
+                    <span class="status-title">Сервер</span>
+                    <span class="status-badge status-{{serverStatus.server.status}}">
+                        {{#if serverStatus.server.isOk}}✅{{/if}}
+                        {{#if serverStatus.server.isError}}❌{{/if}}
+                        {{#if serverStatus.server.isWarning}}⚠️{{/if}}
+                    </span>
+                </div>
+                <div class="status-details">
+                    {{serverStatus.server.message}}
+                    {{#if serverStatus.server.details.memory}}
+                    <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(0,0,0,0.1);">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <span>💾 Память:</span>
+                            <span style="font-weight: 600;">{{serverStatus.server.details.memory.used}} /
+                                {{serverStatus.server.details.memory.total}}</span>
+                        </div>
+                        <div style="background: rgba(0,0,0,0.1); border-radius: 8px; height: 8px; overflow: hidden;">
+                            <div
+                                style="background: linear-gradient(90deg, #10b981, #059669); height: 100%; width: {{serverStatus.server.details.memory.usagePercent}}%; transition: width 0.3s;">
+                            </div>
+                        </div>
+                    </div>
+                    {{/if}}
+                    {{#if serverStatus.server.details.cpu}}
+                    <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(0,0,0,0.1);">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <span>⚡ CPU:</span>
+                            <span style="font-weight: 600;">{{serverStatus.server.details.cpu.usagePercent}}%</span>
+                        </div>
+                        <div style="background: rgba(0,0,0,0.1); border-radius: 8px; height: 8px; overflow: hidden;">
+                            <div
+                                style="background: linear-gradient(90deg, #3b82f6, #2563eb); height: 100%; width: {{serverStatus.server.details.cpu.usagePercent}}%; transition: width 0.3s;">
+                            </div>
+                        </div>
+                        <div style="font-size: 12px; color: var(--tg-theme-hint-color, #6c757d); margin-top: 4px;">
+                            Ядер: {{serverStatus.server.details.cpu.cores}}
+                        </div>
+                    </div>
+                    {{/if}}
+                    {{#if serverStatus.server.details.disk}}
+                    <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(0,0,0,0.1);">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <span>💿 Диск:</span>
+                            <span style="font-weight: 600;">{{serverStatus.server.details.disk.free}} свободно /
+                                {{serverStatus.server.details.disk.total}}</span>
+                        </div>
+                        <div style="background: rgba(0,0,0,0.1); border-radius: 8px; height: 8px; overflow: hidden;">
+                            <div
+                                style="background: linear-gradient(90deg, #8b5cf6, #7c3aed); height: 100%; width: {{serverStatus.server.details.disk.usagePercent}}%; transition: width 0.3s;">
+                            </div>
+                        </div>
+                        <div style="font-size: 12px; color: var(--tg-theme-hint-color, #6c757d); margin-top: 4px;">
+                            Использовано: {{serverStatus.server.details.disk.used}}
+                        </div>
+                    </div>
+                    {{/if}}
+                    {{#if serverStatus.server.details.uptime}}
+                    <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(0,0,0,0.1);">
+                        <span>⏱️ Время работы: {{serverStatus.server.details.uptime}}</span>
+                    </div>
+                    {{/if}}
+                </div>
+            </div>
+            {{/if}}
+        </div>
+        {{/if}}
+
+        {{#if isAdmin}}
+        <div id="phrases-tab" class="tab-content">
+            <div class="form-group">
+                <input type="text" id="new-phrase" class="form-input" placeholder="Введите новую фразу"
+                    onfocus="handleInputFocus()">
+                <button class="btn btn-primary" onclick="addPhrase()"
+                    style="width: 100%; margin-top: 10px;">Добавить</button>
+            </div>
+
+            <div id="phrases-list">
+                {{#if phrases}}
+                {{#each phrases}}
+                <div class="phrase-item" onclick="handlePhraseItemClick(event, {{this.id}})">
+                    <div class="phrase-text">{{this.text}}</div>
+                    <button class="btn btn-danger"
+                        onclick="deletePhrase({{this.id}}); event.stopPropagation();">Удалить</button>
+                </div>
+                {{/each}}
+                {{else}}
+                <div class="empty-state">Список фраз пуст</div>
+                {{/if}}
+            </div>
+        </div>
+        {{/if}}
+    </div>
+
+    <script>
+        // Глобальные переменные
+        let initData = '';
+        let tg = null;
+
+        (function () {
+            console.log('[WebApp] ========== ПОЛНАЯ ИНИЦИАЛИЗАЦИЯ ==========');
+            console.log('[WebApp] URL:', window.location.href);
+            console.log('[WebApp] Search:', window.location.search);
+            console.log('[WebApp] Hash:', window.location.hash);
+
+            tg = window.Telegram?.WebApp;
+
+            if (tg) {
+                console.log('[WebApp] ✅ Telegram WebApp API доступен');
+                console.log('[WebApp] ========== Telegram WebApp Object ==========');
+                console.log('[WebApp] tg object:', tg);
+                console.log('[WebApp] tg.initData:', tg.initData ? `✅ present (${tg.initData.length} chars)` : '❌ missing');
+                if (tg.initData) {
+                    console.log('[WebApp] initData full:', tg.initData);
+                    console.log('[WebApp] initData preview:', tg.initData.substring(0, 200) + '...');
+                }
+                console.log('[WebApp] tg.version:', tg.version);
+                console.log('[WebApp] tg.platform:', tg.platform);
+                console.log('[WebApp] tg.initDataUnsafe:', tg.initDataUnsafe);
+                console.log('[WebApp] tg.readyState:', tg.readyState);
+                console.log('[WebApp] tg.colorScheme:', tg.colorScheme);
+                console.log('[WebApp] tg.themeParams:', tg.themeParams);
+
+                // Пробуем получить все свойства объекта
+                console.log('[WebApp] ========== Все свойства tg объекта ==========');
+                for (const key in tg) {
+                    try {
+                        const value = tg[key];
+                        if (typeof value === 'string' && value.length > 200) {
+                            console.log(`[WebApp]   ${key}: ${value.substring(0, 200)}... (${value.length} chars)`);
+                        } else {
+                            console.log(`[WebApp]   ${key}:`, value);
+                        }
+                    } catch (e) {
+                        console.log(`[WebApp]   ${key}: [не удалось прочитать]`);
+                    }
+                }
+
+                tg.ready();
+                tg.expand();
+            } else {
+                console.error('[WebApp] ❌ Telegram WebApp API недоступен');
+                console.error('[WebApp] window.Telegram:', window.Telegram);
+                console.error('[WebApp] window.Telegram?.WebApp:', window.Telegram?.WebApp);
+                console.error('[WebApp] Возможно, открыто не через Telegram или скрипт не загрузился');
+            }
+
+            // Получаем initData из Telegram Web App
+            const urlParams = new URLSearchParams(window.location.search);
+            const initDataFromUrl = urlParams.get('initData') || '';
+
+            console.log('[WebApp] ========== ПРОВЕРКА initData ==========');
+            console.log('[WebApp] URL:', window.location.href);
+            console.log('[WebApp] Query params:', window.location.search);
+
+            // Приоритет: initData из Telegram API
+            if (tg && tg.initData) {
+                console.log('[WebApp] ✅ Получен initData из Telegram WebApp API');
+                console.log('[WebApp] initData длина:', tg.initData.length);
+                initData = tg.initData;
+
+                // Если initData есть в API, но нет в URL - отправляем на сервер
+                if (!initDataFromUrl) {
+                    console.log('[WebApp] Отправляем initData на сервер для валидации...');
+
+                    // Скрываем сообщение об ошибке, если оно есть (пока идет валидация)
+                    const errorMsg = document.getElementById('error-message');
+                    if (errorMsg) {
+                        errorMsg.style.display = 'none';
+                    }
+
+                    // Отправляем initData как есть, без дополнительного JSON.stringify
+                    // так как initData уже является строкой
+                    fetch('/webapp/init', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ initData: tg.initData }),
+                    })
+                        .then(response => {
+                            console.log('[WebApp] Ответ от сервера получен, статус:', response.status);
+                            return response.json();
+                        })
+                        .then(data => {
+                            console.log('[WebApp] Данные от сервера:', data);
+                            if (data.success) {
+                                console.log('[WebApp] ✅ Валидация успешна, перезагружаем страницу');
+                                // Добавляем initData в URL и перезагружаем
+                                urlParams.set('initData', encodeURIComponent(tg.initData));
+                                window.location.href = window.location.pathname + '?' + urlParams.toString();
+                            } else {
+                                console.error('[WebApp] ❌ Валидация не прошла:', data.error);
+                                // Показываем ошибку пользователю
+                                const errorDiv = document.getElementById('error-message') || document.createElement('div');
+                                errorDiv.id = 'error-message';
+                                errorDiv.innerHTML = `
+              <div style="padding: 20px; text-align: center;">
+                <h2 style="color: #dc3545;">Ошибка авторизации</h2>
+                <p>${data.error || 'Не удалось авторизоваться'}</p>
+                <p style="margin-top: 20px; font-size: 14px; color: var(--tg-theme-hint-color, #666);">
+                  Убедитесь, что вы открыли Web App через Telegram бота
+                </p>
+              </div>
+            `;
+                                if (!errorDiv.parentNode) {
+                                    document.body.insertBefore(errorDiv, document.body.firstChild);
+                                }
+                                errorDiv.style.display = 'block';
+                            }
+                        })
+                        .catch(error => {
+                            console.error('[WebApp] Ошибка при отправке initData:', error);
+                            const errorDiv = document.getElementById('error-message') || document.createElement('div');
+                            errorDiv.id = 'error-message';
+                            errorDiv.innerHTML = `
+            <div style="padding: 20px; text-align: center;">
+              <h2 style="color: #dc3545;">Ошибка соединения</h2>
+              <p>Не удалось отправить данные на сервер: ${error.message}</p>
+            </div>
+          `;
+                            if (!errorDiv.parentNode) {
+                                document.body.insertBefore(errorDiv, document.body.firstChild);
+                            }
+                            errorDiv.style.display = 'block';
+                        });
+                    // Прерываем выполнение, ждем ответа от сервера
+                    return;
+                } else {
+                    // initData уже в URL, используем его
+                    console.log('[WebApp] ✅ initData уже есть в URL');
+                    try {
+                        initData = decodeURIComponent(initDataFromUrl);
+                    } catch (e) {
+                        console.error('[WebApp] Ошибка декодирования:', e);
+                        initData = tg.initData;
+                    }
+                }
+            } else if (initDataFromUrl) {
+                // initData в URL, но нет в API (возможно, уже был добавлен ранее)
+                console.log('[WebApp] ⚠️ initData только в URL');
+                try {
+                    initData = decodeURIComponent(initDataFromUrl);
+                } catch (e) {
+                    console.error('[WebApp] Ошибка декодирования:', e);
+                }
+            } else {
+                console.error('[WebApp] ❌ initData отсутствует везде!');
+                console.error('[WebApp] Telegram WebApp API:', tg ? 'доступен' : 'недоступен');
+                console.error('[WebApp] tg.initData:', tg?.initData ? 'present' : 'missing');
+                console.error('[WebApp] Проверьте, что скрипт https://telegram.org/js/telegram-web-app.js загружен');
+
+                // Показываем ошибку пользователю
+                if (!tg) {
+                    document.body.innerHTML = `
+          <div style="padding: 20px; text-align: center;">
+            <h2 style="color: #dc3545;">Ошибка загрузки Telegram WebApp</h2>
+            <p>Скрипт Telegram WebApp не загрузился</p>
+            <p style="margin-top: 20px; font-size: 14px; color: #666;">
+              Убедитесь, что вы открыли Web App через Telegram бота, а не в обычном браузере
+            </p>
+          </div>
+        `;
+                }
+            }
+
+            if (!initData) {
+                console.error('[WebApp] ❌ initData отсутствует! Web App должен быть открыт через Telegram бота.');
+            } else {
+                console.log('[WebApp] ✅ initData получен, длина:', initData.length);
+            }
+        })(); // Конец IIFE
+
+        // Обработчик клика на карточки статуса с вибрацией
+        function handleStatusCardClick(card) {
+            // Вибрация при нажатии на карточку
+            if (tg && tg.HapticFeedback) {
+                try {
+                    tg.HapticFeedback.impactOccurred('light');
+                } catch (e) {
+                    console.log('[handleStatusCardClick] Вибрация недоступна:', e);
+                }
+            }
+        }
+
+        // Обработчик клика на карточку фразы с вибрацией
+        function handlePhraseItemClick(event, phraseId) {
+            // Предотвращаем клик, если кликнули на кнопку удаления
+            if (event.target.closest('.btn')) {
+                return;
+            }
+
+            // Легкая вибрация при нажатии на карточку фразы
+            if (tg && tg.HapticFeedback) {
+                try {
+                    tg.HapticFeedback.impactOccurred('light');
+                } catch (e) {
+                    console.log('[handlePhraseItemClick] Вибрация недоступна:', e);
+                }
+            }
+        }
+
+        // Обработчик фокуса на input с вибрацией
+        function handleInputFocus() {
+            // Легкая вибрация при фокусе на input
+            if (tg && tg.HapticFeedback) {
+                try {
+                    tg.HapticFeedback.impactOccurred('light');
+                } catch (e) {
+                    console.log('[handleInputFocus] Вибрация недоступна:', e);
+                }
+            }
+        }
+
+        function switchTab(tabName) {
+            // Получаем текущую активную вкладку
+            const currentActiveTab = document.querySelector('.tab-content.active');
+            const newTab = document.getElementById(tabName + '-tab');
+            const currentTabId = currentActiveTab ? currentActiveTab.id : null;
+            const newTabId = newTab ? newTab.id : null;
+
+            // Если уже на этой вкладке - трясем страницу
+            if (currentTabId === newTabId) {
+                // Легкая вибрация
+                if (tg && tg.HapticFeedback) {
+                    try {
+                        tg.HapticFeedback.impactOccurred('light');
+                    } catch (e) {
+                        console.log('[switchTab] Вибрация недоступна:', e);
+                    }
+                }
+
+                // Анимация тряски
+                if (currentActiveTab) {
+                    currentActiveTab.classList.add('shaking');
+                    setTimeout(() => {
+                        currentActiveTab.classList.remove('shaking');
+                    }, 500);
+                }
+                return;
+            }
+
+            // Вибрация при переключении вкладок (усиленная)
+            if (tg && tg.HapticFeedback) {
+                try {
+                    tg.HapticFeedback.impactOccurred('heavy');
+                } catch (e) {
+                    console.log('[switchTab] Вибрация недоступна:', e);
+                }
+            }
+
+            // Определяем направление анимации
+            const currentIndex = currentActiveTab ? Array.from(document.querySelectorAll('.tab-content')).indexOf(currentActiveTab) : 0;
+            const newIndex = Array.from(document.querySelectorAll('.tab-content')).indexOf(newTab);
+            const direction = newIndex > currentIndex ? 1 : -1;
+
+            // Убираем активные классы
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active', 'animating');
+                // Сбрасываем inline стили
+                content.style.transform = '';
+                content.style.opacity = '';
+            });
+
+            // Устанавливаем активную кнопку вкладки с анимацией
+            let activeTabButton = null;
+            if (event && event.target) {
+                activeTabButton = event.target;
+            } else {
+                // Если вызвано программно
+                const tabs = document.querySelectorAll('.tab');
+                tabs.forEach(tab => {
+                    if (tab.textContent.includes(tabName === 'status' ? 'Статус' : 'Фразы')) {
+                        activeTabButton = tab;
+                    }
+                });
+            }
+
+            if (activeTabButton) {
+                activeTabButton.classList.add('active');
+            }
+
+            // Обновляем класс для анимации переключателя
+            const tabsContainer = document.querySelector('.tabs');
+            if (tabsContainer) {
+                if (tabName === 'phrases') {
+                    tabsContainer.classList.add('tab-phrases-active');
+                } else {
+                    tabsContainer.classList.remove('tab-phrases-active');
+                }
+            }
+
+            // Применяем анимацию к новой вкладке
+            newTab.style.transform = `translateX(${direction * 20}px)`;
+            newTab.style.opacity = '0';
+            newTab.classList.add('active', 'animating');
+
+            // Запускаем анимацию
+            requestAnimationFrame(() => {
+                newTab.style.transform = 'translateX(0)';
+                newTab.style.opacity = '1';
+
+                // Убираем класс анимации после завершения
+                setTimeout(() => {
+                    newTab.classList.remove('animating');
+                }, 300);
+            });
+
+            // Сохраняем активную вкладку в localStorage
+            try {
+                localStorage.setItem('webapp_active_tab', tabName);
+            } catch (e) {
+                console.log('[switchTab] Не удалось сохранить вкладку:', e);
+            }
+        }
+
+        // Восстанавливаем активную вкладку при загрузке
+        (function restoreActiveTab() {
+            try {
+                const savedTab = localStorage.getItem('webapp_active_tab');
+                const currentActiveTab = document.querySelector('.tab-content.active');
+                const currentActiveTabId = currentActiveTab ? currentActiveTab.id : null;
+
+                // Обновляем класс переключателя для текущей активной вкладки
+                const tabsContainer = document.querySelector('.tabs');
+                if (tabsContainer && currentActiveTabId) {
+                    if (currentActiveTabId === 'phrases-tab') {
+                        tabsContainer.classList.add('tab-phrases-active');
+                    } else {
+                        tabsContainer.classList.remove('tab-phrases-active');
+                    }
+                }
+
+                // Если сохраненная вкладка существует и отличается от текущей
+                if (savedTab && (savedTab === 'status' || savedTab === 'phrases')) {
+                    const savedTabId = savedTab + '-tab';
+
+                    // Переключаемся только если сохраненная вкладка отличается от текущей
+                    if (savedTabId !== currentActiveTabId) {
+                        const tabElement = document.getElementById(savedTabId);
+                        if (tabElement) {
+                            // Небольшая задержка, чтобы убедиться, что DOM готов
+                            setTimeout(() => {
+                                switchTab(savedTab);
+                            }, 100);
+                        }
+                    }
+                }
+            } catch (e) {
+                console.log('[restoreActiveTab] Не удалось восстановить вкладку:', e);
+            }
+        })();
+
+
+        async function addPhrase() {
+            // Вибрация при нажатии (усиленная)
+            if (tg && tg.HapticFeedback) {
+                try {
+                    tg.HapticFeedback.impactOccurred('heavy');
+                } catch (e) {
+                    console.log('[addPhrase] Вибрация недоступна:', e);
+                }
+            }
+
+            const input = document.getElementById('new-phrase');
+            const text = input.value.trim();
+
+            if (!text) {
+                if (tg && tg.showAlert) {
+                    tg.showAlert('Введите текст фразы');
+                } else {
+                    alert('Введите текст фразы');
+                }
+                return;
+            }
+
+            if (!initData) {
+                console.error('[addPhrase] initData отсутствует!');
+                if (tg && tg.showAlert) {
+                    tg.showAlert('Ошибка: нет данных авторизации. Перезагрузите страницу.');
+                } else {
+                    alert('Ошибка: нет данных авторизации. Перезагрузите страницу.');
+                }
+                return;
+            }
+
+            const urlParams = new URLSearchParams();
+            urlParams.set('initData', encodeURIComponent(initData));
+
+            console.log('[addPhrase] Отправка запроса:', { text, initDataLength: initData.length });
+
+            try {
+                const response = await fetch(`/webapp/api/phrases?${urlParams.toString()}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text }),
+                });
+
+                console.log('[addPhrase] Ответ получен:', response.status, response.statusText);
+
+                const responseData = await response.json();
+                console.log('[addPhrase] Данные ответа:', responseData);
+
+                if (response.ok) {
+                    input.value = '';
+                    await loadPhrases();
+
+                    // Вибрация успеха
+                    if (tg && tg.HapticFeedback) {
+                        try {
+                            tg.HapticFeedback.notificationOccurred('success');
+                        } catch (e) {
+                            console.log('[addPhrase] Вибрация успеха недоступна:', e);
+                        }
+                    }
+
+                    if (tg && tg.showAlert) {
+                        tg.showAlert('Фраза добавлена');
+                    } else {
+                        alert('Фраза добавлена');
+                    }
+
+                    // Сохраняем активную вкладку, чтобы остаться на странице фраз
+                    try {
+                        localStorage.setItem('webapp_active_tab', 'phrases');
+                    } catch (e) {
+                        console.log('[addPhrase] Не удалось сохранить вкладку:', e);
+                    }
+                } else {
+                    const errorMsg = responseData.error || 'Ошибка при добавлении фразы';
+                    console.error('[addPhrase] Ошибка:', errorMsg);
+
+                    // Вибрация ошибки
+                    if (tg && tg.HapticFeedback) {
+                        try {
+                            tg.HapticFeedback.notificationOccurred('error');
+                        } catch (e) {
+                            console.log('[addPhrase] Вибрация ошибки недоступна:', e);
+                        }
+                    }
+
+                    if (tg && tg.showAlert) {
+                        tg.showAlert('Ошибка: ' + errorMsg);
+                    } else {
+                        alert('Ошибка: ' + errorMsg);
+                    }
+                }
+            } catch (error) {
+                console.error('[addPhrase] Исключение:', error);
+
+                // Вибрация ошибки
+                if (tg && tg.HapticFeedback) {
+                    try {
+                        tg.HapticFeedback.notificationOccurred('error');
+                    } catch (e) {
+                        console.log('[addPhrase] Вибрация ошибки недоступна:', e);
+                    }
+                }
+
+                if (tg && tg.showAlert) {
+                    tg.showAlert('Ошибка: ' + error.message);
+                } else {
+                    alert('Ошибка: ' + error.message);
+                }
+            }
+        }
+
+        async function deletePhrase(id) {
+            // Вибрация при нажатии (усиленная)
+            if (tg && tg.HapticFeedback) {
+                try {
+                    tg.HapticFeedback.impactOccurred('heavy');
+                } catch (e) {
+                    console.log('[deletePhrase] Вибрация недоступна:', e);
+                }
+            }
+
+            const confirmMessage = 'Удалить эту фразу?';
+
+            if (tg && tg.showConfirm) {
+                tg.showConfirm(confirmMessage, async (confirmed) => {
+                    if (!confirmed) return;
+                    await performDelete(id);
+                });
+            } else {
+                if (confirm(confirmMessage)) {
+                    await performDelete(id);
+                }
+            }
+        }
+
+        async function performDelete(id) {
+            const urlParams = new URLSearchParams();
+            if (initData) urlParams.set('initData', encodeURIComponent(initData));
+
+            try {
+                const response = await fetch(`/webapp/api/phrases/${id}?${urlParams.toString()}`, {
+                    method: 'DELETE',
+                });
+
+                if (response.ok) {
+                    await loadPhrases();
+
+                    // Вибрация успеха
+                    if (tg && tg.HapticFeedback) {
+                        try {
+                            tg.HapticFeedback.notificationOccurred('success');
+                        } catch (e) {
+                            console.log('[performDelete] Вибрация успеха недоступна:', e);
+                        }
+                    }
+
+                    if (tg && tg.showAlert) {
+                        tg.showAlert('Фраза удалена');
+                    } else {
+                        alert('Фраза удалена');
+                    }
+                } else {
+                    // Вибрация ошибки
+                    if (tg && tg.HapticFeedback) {
+                        try {
+                            tg.HapticFeedback.notificationOccurred('error');
+                        } catch (e) {
+                            console.log('[performDelete] Вибрация ошибки недоступна:', e);
+                        }
+                    }
+
+                    if (tg && tg.showAlert) {
+                        tg.showAlert('Ошибка при удалении фразы');
+                    } else {
+                        alert('Ошибка при удалении фразы');
+                    }
+                }
+            } catch (error) {
+                // Вибрация ошибки
+                if (tg && tg.HapticFeedback) {
+                    try {
+                        tg.HapticFeedback.notificationOccurred('error');
+                    } catch (e) {
+                        console.log('[performDelete] Вибрация ошибки недоступна:', e);
+                    }
+                }
+
+                if (tg && tg.showAlert) {
+                    tg.showAlert('Ошибка: ' + error.message);
+                } else {
+                    alert('Ошибка: ' + error.message);
+                }
+            }
+        }
+
+        async function loadPhrases() {
+            const urlParams = new URLSearchParams();
+            if (initData) urlParams.set('initData', initData);
+
+            try {
+                const response = await fetch(`/webapp/api/phrases?${urlParams.toString()}`);
+                const phrases = await response.json();
+
+                const list = document.getElementById('phrases-list');
+                if (phrases.length === 0) {
+                    list.innerHTML = '<div class="empty-state">Список фраз пуст</div>';
+                } else {
+                    list.innerHTML = phrases.map(p => `
+            <div class="phrase-item" onclick="handlePhraseItemClick(event, ${p.id})">
+              <div class="phrase-text">${p.text}</div>
+              <button class="btn btn-danger" onclick="deletePhrase(${p.id}); event.stopPropagation();">Удалить</button>
+            </div>
+          `).join('');
+                }
+            } catch (error) {
+                console.error('Error loading phrases:', error);
+            }
+        }
+
+        // Автообновление статуса каждые 30 секунд
+        setInterval(async () => {
+            const urlParams = new URLSearchParams();
+            if (initData) urlParams.set('initData', initData);
+
+            try {
+                const response = await fetch(`/webapp/api/status?${urlParams.toString()}`);
+                const status = await response.json();
+                // Обновляем статус на странице
+                location.reload();
+            } catch (error) {
+                console.error('Error refreshing status:', error);
+            }
+        }, 30000);
+    </script>
+</body>
+
+</html>

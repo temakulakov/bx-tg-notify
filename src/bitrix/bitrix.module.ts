@@ -6,7 +6,7 @@ import { BitrixHttpService } from './bitrix-http.service';
 
 @Module({
   providers: [BitrixService, BitrixHttpService],
-  exports: [BitrixService],
+  exports: [BitrixService, BitrixHttpService],
   imports: [
     HttpModule.registerAsync({
       imports: [ConfigModule],

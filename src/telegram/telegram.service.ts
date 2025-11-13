@@ -10,6 +10,8 @@ import { ParserService } from '../parser/parser.service';
 import { Task } from '../tasks/entities/task.entity';
 import { TaskUpdateChange } from '../tasks/types/task-update-change.types';
 import { ConfigService } from '@nestjs/config';
+import { HttpService } from '@nestjs/axios';
+import { firstValueFrom } from 'rxjs';
 
 interface NotifyTaskCommentPayload {
   taskId: number;
@@ -37,18 +39,132 @@ export class TelegramService implements OnModuleInit {
     private readonly usersService: UsersService,
     private readonly parserService: ParserService,
     private readonly configService: ConfigService,
+    private readonly httpService: HttpService,
   ) { }
 
   async onModuleInit() {
     try {
+      // Устанавливаем команды бота
       await this.bot.telegram.setMyCommands([
         { command: 'start', description: 'Авторизация' },
         { command: 'info', description: 'Показать ID чата' },
         { command: 'help', description: 'Как пользоваться ботом' },
       ]);
       this.logger.log('Телеграм бот зарегистрировал команды');
+
+      // Устанавливаем описание бота с ссылкой на Mini App
+      await this.setupMiniApp();
     } catch (error) {
       this.logger.error('Ошибка при регистрации команд бота', error);
+    }
+  }
+
+  /**
+   * Настройка Mini App для бота
+   * Устанавливает описание бота и кнопку меню с Mini App
+   */
+  async setupMiniApp() {
+    try {
+      const appUrl = this.configService.get<string>('APP_URL') || 'http://localhost:3000';
+      const webAppUrl = `${appUrl}/webapp`;
+
+      // Устанавливаем описание бота с информацией о Mini App
+      // Максимальная длина описания: 512 символов, короткого описания: 120 символов
+      const description = `Мониторинг системы Bitrix24
+
+📊 Откройте Mini App для просмотра статуса системы, управления стоп-фразами и другой информации.
+
+Используйте команды из меню для взаимодействия с ботом.`;
+
+      const shortDescription = 'Мониторинг системы Bitrix24';
+
+      await this.bot.telegram.setMyDescription(description);
+      await this.bot.telegram.setMyShortDescription(shortDescription);
+      this.logger.log('Описание бота установлено');
+
+      // Устанавливаем кнопку меню с Mini App через прямой HTTP запрос
+      // так как telegraf может не поддерживать menu_button в setMyCommands
+      await this.setMenuButton(webAppUrl);
+
+      this.logger.log(`Mini App настроен: ${webAppUrl}`);
+    } catch (error) {
+      this.logger.error('Ошибка при настройке Mini App', error);
+    }
+  }
+
+  /**
+   * Устанавливает кнопку меню с Mini App через прямой HTTP запрос к Bot API
+   * Использует метод setMyCommands с параметром menu_button (Bot API 6.0+)
+   */
+  private async setMenuButton(webAppUrl: string) {
+    try {
+      const botToken = this.configService.get<string>('TELEGRAM_BOT_TOKEN');
+      if (!botToken) {
+        this.logger.warn('TELEGRAM_BOT_TOKEN не установлен, пропускаем установку кнопки меню');
+        return;
+      }
+
+      const apiUrl = `https://api.telegram.org/bot${botToken}/setMyCommands`;
+
+      // Устанавливаем команды с кнопкой меню Mini App
+      const commands = [
+        { command: 'start', description: 'Авторизация' },
+        { command: 'info', description: 'Показать ID чата' },
+        { command: 'help', description: 'Как пользоваться ботом' },
+      ];
+
+      // Пробуем установить команды с menu_button через прямой HTTP запрос
+      const response = await firstValueFrom(
+        this.httpService.post(apiUrl, {
+          commands: commands,
+          menu_button: {
+            type: 'web_app',
+            text: '📊 Мониторинг',
+            web_app: {
+              url: webAppUrl,
+            },
+          },
+        })
+      );
+
+      if (response.data.ok) {
+        this.logger.log('Кнопка меню Mini App установлена успешно');
+      } else {
+        this.logger.warn(`Не удалось установить кнопку меню: ${response.data.description}`);
+        // Если не поддерживается, пробуем альтернативный способ
+        await this.setMenuButtonAlternative(webAppUrl);
+      }
+    } catch (error) {
+      this.logger.warn('Ошибка при установке кнопки меню через setMyCommands, пробуем альтернативный способ', error.message);
+      // Пробуем альтернативный способ через setChatMenuButton
+      await this.setMenuButtonAlternative(webAppUrl);
+    }
+  }
+
+  /**
+   * Альтернативный способ установки кнопки меню
+   * Использует setChatMenuButton (но это работает только для конкретных чатов)
+   * Для глобальной установки нужно использовать Bot API напрямую
+   */
+  private async setMenuButtonAlternative(webAppUrl: string) {
+    try {
+      const botToken = this.configService.get<string>('TELEGRAM_BOT_TOKEN');
+      if (!botToken) {
+        return;
+      }
+
+      // Пробуем установить через setMyCommands без menu_button
+      // и добавить описание с инструкцией
+      const description = `Мониторинг системы Bitrix24
+
+📊 Откройте Mini App: ${webAppUrl}
+
+Используйте команды из меню для взаимодействия с ботом.`;
+
+      await this.bot.telegram.setMyDescription(description);
+      this.logger.log('Описание бота обновлено с ссылкой на Mini App');
+    } catch (error) {
+      this.logger.error('Ошибка при альтернативной установке кнопки меню', error);
     }
   }
 
