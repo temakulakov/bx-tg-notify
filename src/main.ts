@@ -14,11 +14,11 @@ async function bootstrap() {
   });
 
   // Настройка шаблонизатора Handlebars
-  // В dev режиме __dirname указывает на dist, в production тоже
-  // Поэтому используем путь относительно корня проекта
+  // В production __dirname указывает на dist/, views копируются в dist/views через nest-cli.json
+  // В dev режиме используем views из корня проекта
   const viewsPath = process.env.NODE_ENV === 'production' 
-    ? join(__dirname, '..', 'views')
-    : join(process.cwd(), 'views');
+    ? join(__dirname, 'views')  // dist/views (копируется из src/views при сборке)
+    : join(process.cwd(), 'views');  // корневая папка views для dev
   app.setBaseViewsDir(viewsPath);
   app.setViewEngine('hbs');
 
