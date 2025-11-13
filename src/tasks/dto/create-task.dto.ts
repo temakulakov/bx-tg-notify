@@ -5,6 +5,7 @@ import {
   IsString,
   IsArray,
   IsDateString,
+  IsBoolean,
 } from 'class-validator';
 
 export class CreateTaskDto {
@@ -28,4 +29,8 @@ export class CreateTaskDto {
 
   @IsInt()
   created_by: number;
+
+  @IsOptional()
+  @IsBoolean()
+  replicate?: boolean;
 }

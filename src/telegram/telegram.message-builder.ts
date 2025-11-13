@@ -14,11 +14,11 @@ export class TelegramMessageBuilder {
     const chunks: string[] = [];
 
     if (template.header) {
-      chunks.push(this.bold(template.header));
+      chunks.push(template.header);
     }
 
     if (template.title) {
-      chunks.push(this.bold(template.title));
+      chunks.push(template.title);
     }
 
     if (template.emphasis) {
