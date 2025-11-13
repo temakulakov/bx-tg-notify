@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мониторинг системы - Bitrix Monitor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+        }
+
+        h1 {
+            color: #667eea;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+
+        h2 {
+            color: #764ba2;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        .status-card {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            transition: transform 0.2s;
+        }
+
+        .status-card:hover {
+            transform: translateX(5px);
+        }
+
+        .status-ok {
+            border-left-color: #28a745;
+        }
+
+        .status-error {
+            border-left-color: #dc3545;
+        }
+
+        .status-warning {
+            border-left-color: #ffc107;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .badge-ok {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge-error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .badge-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .details {
+            margin-top: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background 0.3s;
+        }
+
+        .btn:hover {
+            background: #5568d3;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="nav">
+            <h1>📊 Мониторинг системы</h1>
+        </div>
+
+        {{#if status.database}}
+        <div class="status-card status-{{status.database.status}}">
+            <span class="status-badge badge-{{status.database.status}}">
+                {{#if status.database.isOk}}✅{{/if}}
+                {{#if status.database.isError}}❌{{/if}}
+                {{#if status.database.isWarning}}⚠️{{/if}}
+                База данных
+            </span>
+            <p><strong>{{status.database.message}}</strong></p>
+            {{#if status.database.details}}
+            <div class="details">{{status.database.details}}</div>
+            {{/if}}
+        </div>
+        {{/if}}
+
+        {{#if status.telegram}}
+        <div class="status-card status-{{status.telegram.status}}">
+            <span class="status-badge badge-{{status.telegram.status}}">
+                {{#if status.telegram.isOk}}✅{{/if}}
+                {{#if status.telegram.isError}}❌{{/if}}
+                {{#if status.telegram.isWarning}}⚠️{{/if}}
+                Telegram бот
+            </span>
+            <p><strong>{{status.telegram.message}}</strong></p>
+            {{#if status.telegram.details}}
+            <div class="details">
+                {{#if status.telegram.details.username}}
+                <div>Username: @{{status.telegram.details.username}}</div>
+                {{/if}}
+                {{#if status.telegram.details.id}}
+                <div>ID: {{status.telegram.details.id}}</div>
+                {{/if}}
+                {{#if status.telegram.details.firstName}}
+                <div>Имя: {{status.telegram.details.firstName}}</div>
+                {{/if}}
+            </div>
+            {{/if}}
+        </div>
+        {{/if}}
+
+        {{#if status.bitrix}}
+        <div class="status-card status-{{status.bitrix.status}}">
+            <span class="status-badge badge-{{status.bitrix.status}}">
+                {{#if status.bitrix.isOk}}✅{{/if}}
+                {{#if status.bitrix.isError}}❌{{/if}}
+                {{#if status.bitrix.isWarning}}⚠️{{/if}}
+                Bitrix24 API
+            </span>
+            <p><strong>{{status.bitrix.message}}</strong></p>
+            {{#if status.bitrix.details}}
+            <div class="details">
+                {{#if status.bitrix.details.time}}
+                <div>Время ответа: {{status.bitrix.details.time.duration}}s</div>
+                {{/if}}
+                {{#if status.bitrix.details.error}}
+                <div>Ошибка: {{status.bitrix.details.error}}</div>
+                {{/if}}
+            </div>
+            {{/if}}
+        </div>
+        {{/if}}
+
+        {{#if status.server}}
+        <div class="status-card status-{{status.server.status}}">
+            <span class="status-badge badge-{{status.server.status}}">
+                {{#if status.server.isOk}}✅{{/if}}
+                {{#if status.server.isError}}❌{{/if}}
+                {{#if status.server.isWarning}}⚠️{{/if}}
+                Сервер
+            </span>
+            <p><strong>{{status.server.message}}</strong></p>
+            {{#if status.server.details}}
+            <div class="details">
+                {{#if status.server.details.memory}}
+                <div><strong>Память:</strong></div>
+                <div>Всего: {{status.server.details.memory.total}}</div>
+                <div>Использовано: {{status.server.details.memory.used}}
+                    ({{status.server.details.memory.usagePercent}}%)</div>
+                <div>Свободно: {{status.server.details.memory.free}}</div>
+                {{/if}}
+                {{#if status.server.details.cpu}}
+                <div style="margin-top: 10px;"><strong>CPU:</strong></div>
+                <div>Ядер: {{status.server.details.cpu.cores}}</div>
+                <div>Нагрузка: {{status.server.details.cpu.loadAverage.[0]}},
+                    {{status.server.details.cpu.loadAverage.[1]}}, {{status.server.details.cpu.loadAverage.[2]}}</div>
+                {{/if}}
+                {{#if status.server.details.uptime}}
+                <div style="margin-top: 10px;"><strong>Время работы:</strong> {{status.server.details.uptime}}</div>
+                {{/if}}
+            </div>
+            {{/if}}
+        </div>
+        {{/if}}
+
+        <div style="margin-top: 30px; text-align: center;">
+            <a href="/phrases" class="btn">Управление фразами</a>
+        </div>
+
+        <script>
+            // Автообновление каждые 30 секунд
+            setTimeout(() => {
+                window.location.reload();
+            }, 30000);
+        </script>
+    </div>
+</body>
+
+</html>

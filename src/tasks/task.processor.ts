@@ -6,8 +6,7 @@ import { TasksService } from './tasks.service';
 import { Task } from './entities/task.entity';
 import { TaskUpdateChange } from './types/task-update-change.types';
 import { TelegramService } from '../telegram/telegram.service';
-import * as fs from 'fs';
-import * as path from 'path';
+import { PhrasesService } from '../phrases/phrases.service';
 import { YesNoEnum } from '../bitrix/entities/bitrix-response.type';
 
 interface TaskUpdateResult {
@@ -19,15 +18,13 @@ interface TaskUpdateResult {
 @Injectable()
 export class TaskProcessor {
   private readonly logger = new Logger(TaskProcessor.name);
-  private readonly stopPhrases: string[];
 
   constructor(
     private readonly bitrixService: BitrixService,
     private readonly tasksService: TasksService,
     private readonly telegramService: TelegramService,
-  ) {
-    this.stopPhrases = this.loadStopPhrases();
-  }
+    private readonly phrasesService: PhrasesService,
+  ) {}
 
   async newTaskWebhook(dto: TaskWebhookDto) {
     this.logger.log(`Получен вебхук создания задачи ${dto.id}`);
@@ -269,7 +266,7 @@ export class TaskProcessor {
         return;
       }
 
-      if (this.containsStopPhrase(postMessage)) {
+      if (await this.containsStopPhrase(postMessage)) {
         this.logger.debug(
           `Комментарий ${dto.commentId} содержит стоп-фразу, уведомление не будет отправлено`,
         );
@@ -307,27 +304,14 @@ export class TaskProcessor {
     }
   }
 
-  private loadStopPhrases(): string[] {
-    try {
-      const filePath = path.resolve(
-        process.cwd(),
-        'comment-stop-phrases.txt',
-      );
-      const content = fs.readFileSync(filePath, 'utf8');
-      return content
-        .split(/\r?\n/)
-        .map((line) => line.trim().toLowerCase())
-        .filter(Boolean);
-    } catch (error) {
-      this.logger.warn(
-        'Не удалось загрузить список стоп-слов для комментариев. Файл comment-stop-phrases.txt отсутствует или недоступен.',
-      );
-      return [];
+  private async containsStopPhrase(message: string): Promise<boolean> {
+    if (!message) {
+      return false;
     }
-  }
 
-  private containsStopPhrase(message: string): boolean {
-    if (!this.stopPhrases.length || !message) {
+    try {
+      const phrases = await this.phrasesService.findAll();
+      if (!phrases || phrases.length === 0) {
       return false;
     }
 
@@ -336,9 +320,13 @@ export class TaskProcessor {
       .replace(/\[\/?[A-Z]+(?:=[^\]]+)?\]/gi, '')
       .toLowerCase();
 
-    return this.stopPhrases.some(
-      (phrase) => phrase && plainText.includes(phrase),
+      return phrases.some(
+        (phrase) => phrase.text && plainText.includes(phrase.text.toLowerCase()),
     );
+    } catch (error) {
+      this.logger.error('Ошибка при проверке стоп-фраз из БД', error);
+      return false;
+    }
   }
 
   private extractMentionedUserIds(

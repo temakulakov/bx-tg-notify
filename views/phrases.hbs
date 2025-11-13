@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Управление фразами - Bitrix Monitor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+        }
+
+        h1 {
+            color: #667eea;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+
+        h2 {
+            color: #764ba2;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .user-info {
+            color: #666;
+            font-size: 0.9em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+            font-family: inherit;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background 0.3s;
+        }
+
+        .btn:hover {
+            background: #5568d3;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .phrases-list {
+            list-style: none;
+        }
+
+        .phrase-item {
+            background: #f8f9fa;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .phrase-text {
+            flex: 1;
+            margin-right: 15px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="nav">
+            <h1>📝 Управление фразами</h1>
+            {{#if user}}
+            <div class="user-info">
+                <span>Пользователь: {{user.name}} (ID: {{user.telegramId}})</span>
+                <form method="POST" action="/auth/logout" style="display: inline;">
+                    <button type="submit" class="btn btn-danger"
+                        style="padding: 5px 10px; font-size: 0.85em;">Выйти</button>
+                </form>
+            </div>
+            {{/if}}
+        </div>
+
+        <div style="margin-bottom: 30px;">
+            <a href="/" class="btn">На главную</a>
+        </div>
+
+        <h2>Добавить новую фразу</h2>
+        <form method="POST" action="/phrases">
+            <div class="form-group">
+                <label for="text">Текст фразы:</label>
+                <textarea id="text" name="text" rows="3" required placeholder="Введите текст фразы"></textarea>
+            </div>
+
+            <button type="submit" class="btn">Добавить</button>
+        </form>
+
+        <h2>Список фраз</h2>
+        {{#if phrases}}
+        <ul class="phrases-list">
+            {{#each phrases}}
+            <li class="phrase-item">
+                <div class="phrase-text">{{this.text}}</div>
+                <form method="POST" action="/phrases/{{this.id}}/delete" style="display: inline;">
+                    <button type="submit" class="btn btn-danger"
+                        onclick="return confirm('Вы уверены, что хотите удалить эту фразу?')">Удалить</button>
+                </form>
+            </li>
+            {{/each}}
+        </ul>
+        {{else}}
+        <p style="color: #666; font-style: italic;">Список фраз пуст</p>
+        {{/if}}
+    </div>
+</body>
+
+</html>

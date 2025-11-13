@@ -14,6 +14,10 @@ import { CommentsModule } from './comments/comments.module';
 import { ParserModule } from './parser/parser.module';
 import { WebhookModule } from './webhook/webhook.module';
 import { TelegramModule } from './telegram/telegram.module';
+import { DashboardModule } from './dashboard/dashboard.module';
+import { PhrasesModule } from './phrases/phrases.module';
+import { AuthModule } from './auth/auth.module';
+import { WebappModule } from './webapp/webapp.module';
 
 @Module({
   imports: [
@@ -33,10 +37,14 @@ import { TelegramModule } from './telegram/telegram.module';
     ParserModule,
     WebhookModule,
     TelegramModule,
+    DashboardModule,
+    PhrasesModule,
+    AuthModule,
+    WebappModule,
   ],
-  controllers: [AppController],
+  controllers: [],
   providers: [AppService, CommentsService],
 })
 export class AppModule {
-  constructor(private dataSource: DataSource) {}
+  constructor(private dataSource: DataSource) { }
 }

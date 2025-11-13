@@ -4,11 +4,37 @@ import { ValidationPipe, BadRequestException } from '@nestjs/common';
 import * as bodyParser from 'body-parser';
 import { CustomLogger } from './common/logger/custom-logger';
 import { Request, Response, NextFunction } from 'express';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { join } from 'path';
+const session = require('express-session');
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     logger: new CustomLogger('NestApplication'),
   });
+
+  // Настройка шаблонизатора Handlebars
+  // В dev режиме __dirname указывает на dist, в production тоже
+  // Поэтому используем путь относительно корня проекта
+  const viewsPath = process.env.NODE_ENV === 'production' 
+    ? join(__dirname, '..', 'views')
+    : join(process.cwd(), 'views');
+  app.setBaseViewsDir(viewsPath);
+  app.setViewEngine('hbs');
+
+  // Настройка сессий
+  app.use(
+    session({
+      secret: process.env.SESSION_SECRET || 'your-secret-key-change-in-production',
+      resave: false,
+      saveUninitialized: false,
+      cookie: {
+        secure: process.env.NODE_ENV === 'production',
+        httpOnly: true,
+        maxAge: 24 * 60 * 60 * 1000, // 24 часа
+      },
+    }),
+  );
 
   const requestLogger = new CustomLogger('WebhookRequest');
   const validationLogger = new CustomLogger('ValidationPipe');

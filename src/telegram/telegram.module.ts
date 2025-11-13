@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TelegrafModule } from 'nestjs-telegraf';
+import { HttpModule } from '@nestjs/axios';
 import { TelegramService } from './telegram.service';
 import { TelegramController } from './telegram.controller';
 import { TelegramMessageBuilder } from './telegram.message-builder';
@@ -12,6 +13,7 @@ import { ParserModule } from '../parser/parser.module';
 @Module({
   imports: [
     ConfigModule,
+    HttpModule,
     UsersModule,
     ParserModule,
     TelegrafModule.forRootAsync({

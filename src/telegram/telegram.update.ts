@@ -53,15 +53,28 @@ export class TelegramUpdate {
   @Command('info')
   async onInfo(@Ctx() ctx: Context) {
     const chatId = ctx.chat?.id;
+    const userId = ctx.from?.id;
 
     if (!chatId) {
       this.logger.warn('Команда /info без chatId');
       return;
     }
 
+    // Отправляем информацию о Web App
+    const webAppUrl = `${process.env.APP_URL || 'http://localhost:3000'}/webapp`;
+    const webAppButton = {
+      text: '📊 Открыть мониторинг',
+      web_app: { url: webAppUrl },
+    };
+
     await ctx.reply(
-      `ID текущего чата: <code>${chatId}</code>`,
-      HTML_REPLY_OPTIONS,
+      `Ваш Telegram ID: <b>${userId}</b>\nID текущего чата: <code>${chatId}</code>\n\nИспользуйте этот ID для авторизации на сайте.\n\nТакже вы можете открыть Web App для мониторинга системы:`,
+      {
+        ...HTML_REPLY_OPTIONS,
+        reply_markup: {
+          inline_keyboard: [[webAppButton]],
+        },
+      },
     );
   }
 
