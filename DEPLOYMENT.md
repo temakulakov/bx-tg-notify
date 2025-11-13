@@ -53,6 +53,8 @@ APP_URL=https://shebo.h512.ru
 npm run build
 ```
 
+**Важно:** При сборке views автоматически копируются из `src/views/` в `dist/views/` благодаря настройке в `nest-cli.json`. В production режиме приложение использует views из `dist/views/`.
+
 ### Запуск в production режиме
 
 ```bash
