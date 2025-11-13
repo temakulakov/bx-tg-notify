@@ -33,7 +33,7 @@ export class ParserService {
       const responsibleId = task.responsible_ids?.[0] ?? task.created_by;
       const url = `${domain}/company/personal/user/${responsibleId}/tasks/task/view/${task.bitrixId}`;
 
-      return `<b><a href="${url}">${this.escapeHtml(task.title)}</a></b>`;
+      return `<a href="${url}">${this.escapeHtml(task.title)}</a>`;
     } catch (error) {
       this.logger.error(
         `Не удалось получить задачу ${bitrixTaskId} для форматирования заголовка`,

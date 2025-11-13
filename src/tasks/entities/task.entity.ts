@@ -31,6 +31,9 @@ export class Task {
   @Column({ type: 'int' })
   created_by: number;
 
+  @Column({ type: 'boolean', default: false })
+  replicate: boolean;
+
   @CreateDateColumn({ type: 'datetime', name: 'created_at' })
   createdAt: Date;
 

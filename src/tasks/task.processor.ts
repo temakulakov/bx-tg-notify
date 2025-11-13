@@ -38,7 +38,8 @@ export class TaskProcessor {
     }
 
     const task = result.result.task;
-    if (task.replicate === YesNoEnum.Yes) {
+    const isReplicate = task.replicate === YesNoEnum.Yes;
+    if (isReplicate) {
       this.logger.debug(
         `Задача ${dto.id} помечена как регулярная (replicate=Y), пропускаем сохранение и уведомление`,
       );
@@ -54,6 +55,7 @@ export class TaskProcessor {
       created_by: Number(task.createdBy),
       deadline: task.deadline,
       description: task.description,
+      replicate: isReplicate,
     });
 
     this.logger.verbose(`Задача ${dto.id} сохранена в БД`);
@@ -70,7 +72,8 @@ export class TaskProcessor {
     }
 
     const remoteTask = result.result.task;
-    if (remoteTask.replicate === YesNoEnum.Yes) {
+    const isReplicate = remoteTask.replicate === YesNoEnum.Yes;
+    if (isReplicate) {
       this.logger.debug(
         `Задача ${dto.id} отмечена как регулярная (replicate=Y), обновление пропущено`,
       );
@@ -161,6 +164,7 @@ export class TaskProcessor {
       }
 
       currentTask.created_by = newCreatedBy;
+      currentTask.replicate = isReplicate;
 
       if (!changes.length) {
         this.logger.debug(
@@ -191,6 +195,7 @@ export class TaskProcessor {
       created_by: newCreatedBy,
       deadline: newDeadline ? newDeadline.toISOString() : undefined,
       description: remoteTask.description ?? '',
+      replicate: isReplicate,
     });
 
     return {
@@ -205,6 +210,41 @@ export class TaskProcessor {
     );
 
     try {
+      // Проверяем, есть ли задача в БД. Если нет - создаем её
+      let task = await this.tasksService.findByBitrixId(dto.id);
+      if (!task) {
+        this.logger.log(
+          `Задача ${dto.id} не найдена в БД, получаем данные из Bitrix и создаем запись`,
+        );
+
+        const taskResponse = await this.bitrixService.getTask(dto.id);
+        if (!taskResponse?.result?.task) {
+          this.logger.error(
+            `Bitrix не вернул данные задачи ${dto.id} для создания записи в БД`,
+          );
+          return;
+        }
+
+        const remoteTask = taskResponse.result.task;
+        // Создаем задачу в БД даже если она регулярная (replicate=Y),
+        // так как для регулярных задач уведомления по комментариям должны проходить
+        task = await this.tasksService.create({
+          bitrixId: +remoteTask.id,
+          title: remoteTask.title,
+          responsible_ids: remoteTask.responsibleId
+            ? [Number(remoteTask.responsibleId)]
+            : [],
+          created_by: Number(remoteTask.createdBy),
+          deadline: remoteTask.deadline,
+          description: remoteTask.description ?? '',
+          replicate: remoteTask.replicate === YesNoEnum.Yes,
+        });
+
+        this.logger.log(
+          `Задача ${dto.id} создана в БД (replicate=${remoteTask.replicate === YesNoEnum.Yes ? 'Y' : 'N'})`,
+        );
+      }
+
       const [commentResponse] = await Promise.all([
         this.bitrixService.getTaskComment(dto.id, dto.commentId),
       ]);
