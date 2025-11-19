@@ -22,3 +22,4 @@ EXPOSE 3000
 
 # По умолчанию запускаем prod версию
 CMD ["node", "dist/main.js"]
+
