@@ -22,7 +22,7 @@ import { WebappModule } from './webapp/webapp.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: '.development.env',
+      envFilePath: process.env.NODE_ENV === 'production' ? '.production.env' : '.development.env',
     }),
     ScheduleModule.forRoot(),
     TypeOrmModule.forRootAsync({

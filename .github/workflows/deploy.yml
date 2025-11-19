@@ -40,24 +40,22 @@ jobs:
             git reset --hard origin/main
             
             # Создаем .env файл из секретов
-            {
-              echo "NODE_ENV=production"
-              echo ""
-              echo "DB_HOST=mysql"
-              echo "DB_PORT=3306"
-              echo "DB_USER=${DB_USER}"
-              echo "DB_PASS=${DB_PASS}"
-              echo "DB_NAME=${DB_NAME}"
-              echo ""
-              echo "BX24_OUTGOING_TOKEN=${BX24_OUTGOING_TOKEN}"
-              echo "BX24_INCOMING_TOKEN=${BX24_INCOMING_TOKEN}"
-              echo "BX24_INCOMING_USER=${BX24_INCOMING_USER}"
-              echo "BX24_DOMAIN=${BX24_DOMAIN}"
-              echo ""
-              echo "TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}"
-              echo ""
-              echo "APP_PORT=3000"
-            } > .production.env
+            # Используем printf для безопасной обработки специальных символов
+            printf 'NODE_ENV=production\n\n' > .production.env
+            printf 'DB_HOST=mysql\n' >> .production.env
+            printf 'DB_PORT=3306\n' >> .production.env
+            printf 'DB_USER=%s\n' "${DB_USER}" >> .production.env
+            printf 'DB_PASS=%s\n' "${DB_PASS}" >> .production.env
+            printf 'DB_NAME=%s\n' "${DB_NAME}" >> .production.env
+            printf '\n' >> .production.env
+            printf 'BX24_OUTGOING_TOKEN=%s\n' "${BX24_OUTGOING_TOKEN}" >> .production.env
+            printf 'BX24_INCOMING_TOKEN=%s\n' "${BX24_INCOMING_TOKEN}" >> .production.env
+            printf 'BX24_INCOMING_USER=%s\n' "${BX24_INCOMING_USER}" >> .production.env
+            printf 'BX24_DOMAIN=%s\n' "${BX24_DOMAIN}" >> .production.env
+            printf '\n' >> .production.env
+            printf 'TELEGRAM_BOT_TOKEN=%s\n' "${TELEGRAM_BOT_TOKEN}" >> .production.env
+            printf '\n' >> .production.env
+            printf 'APP_PORT=3000\n' >> .production.env
             
             # Останавливаем контейнеры
             docker compose --profile production down || true
