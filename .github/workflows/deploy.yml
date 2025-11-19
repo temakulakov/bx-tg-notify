@@ -47,24 +47,24 @@ jobs:
             git reset --hard origin/main
             
             # Создаем .env файл из секретов
-            cat > .production.env << EOF
-NODE_ENV=production
-
-DB_HOST=mysql
-DB_PORT=3306
-DB_USER=${DB_USER}
-DB_PASS=${DB_PASS}
-DB_NAME=${DB_NAME}
-
-BX24_OUTGOING_TOKEN=${BX24_OUTGOING_TOKEN}
-BX24_INCOMING_TOKEN=${BX24_INCOMING_TOKEN}
-BX24_INCOMING_USER=${BX24_INCOMING_USER}
-BX24_DOMAIN=${BX24_DOMAIN}
-
-TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
-
-APP_PORT=3000
-EOF
+            {
+              echo "NODE_ENV=production"
+              echo ""
+              echo "DB_HOST=mysql"
+              echo "DB_PORT=3306"
+              echo "DB_USER=${DB_USER}"
+              echo "DB_PASS=${DB_PASS}"
+              echo "DB_NAME=${DB_NAME}"
+              echo ""
+              echo "BX24_OUTGOING_TOKEN=${BX24_OUTGOING_TOKEN}"
+              echo "BX24_INCOMING_TOKEN=${BX24_INCOMING_TOKEN}"
+              echo "BX24_INCOMING_USER=${BX24_INCOMING_USER}"
+              echo "BX24_DOMAIN=${BX24_DOMAIN}"
+              echo ""
+              echo "TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}"
+              echo ""
+              echo "APP_PORT=3000"
+            } > .production.env
             
             # Останавливаем контейнеры
             docker compose --profile production down || true
