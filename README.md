@@ -52,6 +52,7 @@ DB_USER=shebo
 DB_PASS=your_password
 DB_NAME=shebo
 
+
 BX24_OUTGOING_TOKEN=your_token
 BX24_INCOMING_TOKEN=your_token
 BX24_INCOMING_USER=your_user_id
