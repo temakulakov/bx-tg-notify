@@ -57,8 +57,23 @@ jobs:
             printf '\n' >> .production.env
             printf 'APP_PORT=3000\n' >> .production.env
             
-            # Останавливаем контейнеры
-            docker compose --profile production down || true
+            # Проверяем что файл создан (без показа паролей)
+            echo "Checking .production.env file..."
+            if [ -f .production.env ]; then
+              echo "File exists. DB_USER=$(grep '^DB_USER=' .production.env | cut -d'=' -f2)"
+              echo "DB_NAME=$(grep '^DB_NAME=' .production.env | cut -d'=' -f2)"
+              echo "DB_PASS is set: $(grep -q '^DB_PASS=' .production.env && echo 'yes' || echo 'no')"
+            else
+              echo "ERROR: .production.env file not created!"
+              exit 1
+            fi
+            
+            # Останавливаем контейнеры и удаляем volumes для пересоздания MySQL с новыми учетными данными
+            echo "Stopping containers and removing MySQL volume..."
+            docker compose --profile production down -v || true
+            
+            # Ждем немного перед пересозданием
+            sleep 2
             
             # Собираем и запускаем
             ENV_FILE=.production.env docker compose --profile production up -d --build
