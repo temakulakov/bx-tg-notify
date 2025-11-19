@@ -1,0 +1,11 @@
+INSERT INTO shebo.phrases (id, text, created_at, updated_at) VALUES (1, 'вы назначены исполнителем.', '2025-11-13 14:49:46', '2025-11-13 14:49:46');
+INSERT INTO shebo.phrases (id, text, created_at, updated_at) VALUES (2, 'вы назначены соисполнителем.', '2025-11-13 14:49:46', '2025-11-13 14:49:46');
+INSERT INTO shebo.phrases (id, text, created_at, updated_at) VALUES (3, 'вы добавлены наблюдателем.', '2025-11-13 14:49:46', '2025-11-13 14:49:46');
+INSERT INTO shebo.phrases (id, text, created_at, updated_at) VALUES (4, 'удалили вас из наблюдателей.', '2025-11-13 14:49:46', '2025-11-13 14:49:46');
+INSERT INTO shebo.phrases (id, text, created_at, updated_at) VALUES (5, 'удалили вас из соисполнителей.', '2025-11-13 14:49:46', '2025-11-13 14:49:46');
+INSERT INTO shebo.phrases (id, text, created_at, updated_at) VALUES (6, 'удалили вас из исполнителей.', '2025-11-13 14:49:47', '2025-11-13 14:49:47');
+INSERT INTO shebo.phrases (id, text, created_at, updated_at) VALUES (7, 'удалили вас из создателей.', '2025-11-13 14:49:47', '2025-11-13 14:49:47');
+INSERT INTO shebo.phrases (id, text, created_at, updated_at) VALUES (8, 'задача почти просрочена.', '2025-11-13 14:49:47', '2025-11-13 14:49:47');
+INSERT INTO shebo.phrases (id, text, created_at, updated_at) VALUES (9, 'задача просрочена.', '2025-11-13 14:49:47', '2025-11-13 14:49:47');
+INSERT INTO shebo.phrases (id, text, created_at, updated_at) VALUES (10, 'крайний срок изменен на:', '2025-11-13 14:49:47', '2025-11-13 14:49:47');
+INSERT INTO shebo.phrases (id, text, created_at, updated_at) VALUES (22, 'задача просрочена,', '2025-11-17 20:09:10', '2025-11-17 20:09:10');

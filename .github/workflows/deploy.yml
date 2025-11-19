@@ -126,41 +126,41 @@ jobs:
             echo "Using DB_NAME: ${DB_NAME}"
             echo "Using DB_PASS length: ${#DB_PASS} characters"
             
-            # Используем MYSQL_PWD для безопасной передачи пароля (избегаем проблем с спецсимволами)
+            # Экранируем значения для SQL запросов
+            DB_PASS_ESCAPED=$(echo "${DB_PASS}" | sed "s/'/''/g")
+            DB_USER_ESCAPED=$(echo "${DB_USER}" | sed "s/'/''/g")
+            DB_NAME_ESCAPED=$(echo "${DB_NAME}" | sed "s/'/''/g")
+            
+            # Используем root пароль (который равен DB_PASS в docker-compose) для настройки пользователя
+            # MySQL создается через docker-compose с MYSQL_ROOT_PASSWORD=${DB_PASS}
             export MYSQL_PWD="${DB_PASS}"
             
             # Проверяем какие пользователи уже существуют
             echo ""
             echo "=== DEBUG: Checking existing MySQL users ==="
-            ENV_FILE=.production.env docker compose --profile production exec -T mysql mysql -uroot -e "SELECT User, Host, authentication_string IS NOT NULL as has_password FROM mysql.user WHERE User='${DB_USER}';" 2>&1 || echo "Warning: Could not query MySQL users"
+            ENV_FILE=.production.env docker compose --profile production exec -T -e MYSQL_PWD="${DB_PASS}" mysql mysql -uroot -e "SELECT User, Host, authentication_string IS NOT NULL as has_password FROM mysql.user WHERE User='${DB_USER}';" 2>&1 || echo "Warning: Could not query MySQL users"
             
             # Удаляем пользователя если он существует и создаем заново с доступом с любого хоста
-            # Экранируем пароль для SQL запроса: одинарные кавычки удваиваем
-            DB_PASS_ESCAPED=$(echo "${DB_PASS}" | sed "s/'/''/g")
-            DB_USER_ESCAPED=$(echo "${DB_USER}" | sed "s/'/''/g")
-            DB_NAME_ESCAPED=$(echo "${DB_NAME}" | sed "s/'/''/g")
             echo ""
             echo "=== DEBUG: Dropping and recreating MySQL user ==="
             # Создаем базу данных, если она не существует
-            ENV_FILE=.production.env docker compose --profile production exec -T mysql mysql -uroot -e "CREATE DATABASE IF NOT EXISTS \`${DB_NAME_ESCAPED}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;" 2>&1 || echo "Warning: Could not create database"
+            ENV_FILE=.production.env docker compose --profile production exec -T -e MYSQL_PWD="${DB_PASS}" mysql mysql -uroot -e "CREATE DATABASE IF NOT EXISTS \`${DB_NAME_ESCAPED}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;" 2>&1 || echo "Warning: Could not create database"
             # Удаляем и создаем пользователя заново
-            ENV_FILE=.production.env docker compose --profile production exec -T mysql mysql -uroot -e "DROP USER IF EXISTS '${DB_USER_ESCAPED}'@'localhost'; DROP USER IF EXISTS '${DB_USER_ESCAPED}'@'%'; CREATE USER '${DB_USER_ESCAPED}'@'%' IDENTIFIED BY '${DB_PASS_ESCAPED}'; GRANT ALL PRIVILEGES ON \`${DB_NAME_ESCAPED}\`.* TO '${DB_USER_ESCAPED}'@'%'; FLUSH PRIVILEGES;" 2>&1 || echo "Warning: Could not configure MySQL user"
+            ENV_FILE=.production.env docker compose --profile production exec -T -e MYSQL_PWD="${DB_PASS}" mysql mysql -uroot -e "DROP USER IF EXISTS '${DB_USER_ESCAPED}'@'localhost'; DROP USER IF EXISTS '${DB_USER_ESCAPED}'@'%'; CREATE USER '${DB_USER_ESCAPED}'@'%' IDENTIFIED BY '${DB_PASS_ESCAPED}'; GRANT ALL PRIVILEGES ON \`${DB_NAME_ESCAPED}\`.* TO '${DB_USER_ESCAPED}'@'%'; FLUSH PRIVILEGES;" 2>&1 || echo "Warning: Could not configure MySQL user"
             
             # Проверяем что пользователь создан правильно - ПОЛНАЯ ИНФОРМАЦИЯ
             echo ""
             echo "=== DEBUG: Verifying MySQL user after creation - FULL INFO ==="
-            ENV_FILE=.production.env docker compose --profile production exec -T mysql mysql -uroot -e "SELECT User, Host, plugin, LEFT(authentication_string, 20) as auth_string_start, LENGTH(authentication_string) as auth_string_length FROM mysql.user WHERE User='${DB_USER}';" 2>&1 || echo "Warning: Could not verify MySQL user"
+            ENV_FILE=.production.env docker compose --profile production exec -T -e MYSQL_PWD="${DB_PASS}" mysql mysql -uroot -e "SELECT User, Host, plugin, LEFT(authentication_string, 20) as auth_string_start, LENGTH(authentication_string) as auth_string_length FROM mysql.user WHERE User='${DB_USER}';" 2>&1 || echo "Warning: Could not verify MySQL user"
             
             # Проверяем что пользователь может подключиться к базе данных
             echo ""
             echo "=== DEBUG: Testing MySQL user connection ==="
-            ENV_FILE=.production.env docker compose --profile production exec -T mysql mysql -u"${DB_USER}" -e "USE \`${DB_NAME}\`; SELECT 'Connection successful' as status, USER() as \`current_user\`, DATABASE() as \`current_database\`;" 2>&1 || echo "Warning: Could not test MySQL user connection"
+            ENV_FILE=.production.env docker compose --profile production exec -T -e MYSQL_PWD="${DB_PASS}" mysql mysql -u"${DB_USER}" "${DB_NAME}" -e "SELECT 'Connection successful' as status, USER() as \`current_user\`, DATABASE() as \`current_database\`;" 2>&1 || echo "Warning: Could not test MySQL user connection"
             
             # Выполняем миграции базы данных
             echo ""
             echo "=== Running database migrations ==="
-            # Используем MYSQL_PWD для безопасной передачи пароля
-            export MYSQL_PWD="${DB_PASS}"
             if [ -f migrations/create-all-tables.sql ]; then
               echo "Running create-all-tables.sql migration..."
               cat migrations/create-all-tables.sql | ENV_FILE=.production.env docker compose --profile production exec -T -e MYSQL_PWD="${DB_PASS}" mysql mysql -u"${DB_USER}" "${DB_NAME}" 2>&1 || echo "Warning: Migration failed (may already be applied)"
@@ -175,6 +175,24 @@ jobs:
               cat migrations/add-replicate-column.sql | ENV_FILE=.production.env docker compose --profile production exec -T -e MYSQL_PWD="${DB_PASS}" mysql mysql -u"${DB_USER}" "${DB_NAME}" 2>&1 || echo "Warning: Migration failed (may already be applied)"
             fi
             echo "Migrations completed!"
+            
+            # Загружаем данные из SQL файлов, если они существуют
+            echo ""
+            echo "=== Loading data from SQL files ==="
+            # Используем DB_NAME вместо hardcoded 'shebo' в SQL файлах и INSERT IGNORE для безопасной повторной загрузки
+            if [ -f migrations/phrases.sql ]; then
+              echo "Loading phrases.sql..."
+              sed "s/INSERT INTO shebo\./INSERT IGNORE INTO ${DB_NAME}./g" migrations/phrases.sql | ENV_FILE=.production.env docker compose --profile production exec -T -e MYSQL_PWD="${DB_PASS}" mysql mysql -u"${DB_USER}" "${DB_NAME}" 2>&1 | grep -v "^$" || echo "Warning: Could not load phrases.sql (may already be loaded)"
+            fi
+            if [ -f migrations/tasks.sql ]; then
+              echo "Loading tasks.sql (this may take a while)..."
+              sed "s/INSERT INTO shebo\./INSERT IGNORE INTO ${DB_NAME}./g" migrations/tasks.sql | ENV_FILE=.production.env docker compose --profile production exec -T -e MYSQL_PWD="${DB_PASS}" mysql mysql -u"${DB_USER}" "${DB_NAME}" 2>&1 | head -20 || echo "Warning: Could not load tasks.sql (may already be loaded)"
+            fi
+            if [ -f migrations/users_shebo.sql ]; then
+              echo "Loading users_shebo.sql..."
+              sed "s/INSERT INTO shebo\./INSERT IGNORE INTO ${DB_NAME}./g" migrations/users_shebo.sql | ENV_FILE=.production.env docker compose --profile production exec -T -e MYSQL_PWD="${DB_PASS}" mysql mysql -u"${DB_USER}" "${DB_NAME}" 2>&1 | grep -v "^$" || echo "Warning: Could not load users_shebo.sql (may already be loaded)"
+            fi
+            echo "Data loading completed!"
             
             # Выводим пароль из .production.env для сравнения
             echo ""
