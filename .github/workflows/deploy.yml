@@ -181,17 +181,18 @@ jobs:
             echo ""
             echo "=== Loading data from SQL files ==="
             # Используем DB_NAME вместо hardcoded 'shebo' в SQL файлах и INSERT IGNORE для безопасной повторной загрузки
+            # Используем --default-character-set=utf8mb4 для правильной обработки кириллицы
             if [ -f migrations/phrases.sql ]; then
               echo "Loading phrases.sql..."
-              sed "s/INSERT INTO shebo\./INSERT IGNORE INTO ${DB_NAME}./g" migrations/phrases.sql | ENV_FILE=.production.env docker compose --profile production exec -T -e MYSQL_PWD="${DB_PASS}" mysql mysql -u"${DB_USER}" "${DB_NAME}" 2>&1 | grep -v "^$" || echo "Warning: Could not load phrases.sql (may already be loaded)"
+              sed "s/INSERT INTO shebo\./INSERT IGNORE INTO ${DB_NAME}./g" migrations/phrases.sql | ENV_FILE=.production.env docker compose --profile production exec -T -e MYSQL_PWD="${DB_PASS}" mysql mysql --default-character-set=utf8mb4 -u"${DB_USER}" "${DB_NAME}" 2>&1 | grep -v "^$" || echo "Warning: Could not load phrases.sql (may already be loaded)"
             fi
             if [ -f migrations/tasks.sql ]; then
               echo "Loading tasks.sql (this may take a while)..."
-              sed "s/INSERT INTO shebo\./INSERT IGNORE INTO ${DB_NAME}./g" migrations/tasks.sql | ENV_FILE=.production.env docker compose --profile production exec -T -e MYSQL_PWD="${DB_PASS}" mysql mysql -u"${DB_USER}" "${DB_NAME}" 2>&1 | head -20 || echo "Warning: Could not load tasks.sql (may already be loaded)"
+              sed "s/INSERT INTO shebo\./INSERT IGNORE INTO ${DB_NAME}./g" migrations/tasks.sql | ENV_FILE=.production.env docker compose --profile production exec -T -e MYSQL_PWD="${DB_PASS}" mysql mysql --default-character-set=utf8mb4 -u"${DB_USER}" "${DB_NAME}" 2>&1 | head -20 || echo "Warning: Could not load tasks.sql (may already be loaded)"
             fi
             if [ -f migrations/users_shebo.sql ]; then
               echo "Loading users_shebo.sql..."
-              sed "s/INSERT INTO shebo\./INSERT IGNORE INTO ${DB_NAME}./g" migrations/users_shebo.sql | ENV_FILE=.production.env docker compose --profile production exec -T -e MYSQL_PWD="${DB_PASS}" mysql mysql -u"${DB_USER}" "${DB_NAME}" 2>&1 | grep -v "^$" || echo "Warning: Could not load users_shebo.sql (may already be loaded)"
+              sed "s/INSERT INTO shebo\./INSERT IGNORE INTO ${DB_NAME}./g" migrations/users_shebo.sql | ENV_FILE=.production.env docker compose --profile production exec -T -e MYSQL_PWD="${DB_PASS}" mysql mysql --default-character-set=utf8mb4 -u"${DB_USER}" "${DB_NAME}" 2>&1 | grep -v "^$" || echo "Warning: Could not load users_shebo.sql (may already be loaded)"
             fi
             echo "Data loading completed!"
             
@@ -201,14 +202,12 @@ jobs:
             ENV_FILE=.production.env docker compose --profile production exec -T -e MYSQL_PWD="${DB_PASS}" mysql mysql -u"${DB_USER}" "${DB_NAME}" -e "SHOW TABLES;" 2>&1 || echo "Warning: Could not list tables"
             ENV_FILE=.production.env docker compose --profile production exec -T -e MYSQL_PWD="${DB_PASS}" mysql mysql -u"${DB_USER}" "${DB_NAME}" -e "SELECT COUNT(*) as phrases_count FROM phrases;" 2>&1 || echo "Warning: Could not query phrases table"
             
-            # Выводим пароль из .production.env для сравнения
+            # Перезапускаем приложение после миграций, чтобы оно подключилось к обновленной базе
             echo ""
-            echo "=== DEBUG: Password from .production.env file ==="
-            echo "DB_PASS from file: $(grep '^DB_PASS=' .production.env | cut -d'=' -f2)"
-            
-            # Ждем запуска приложения
-            echo "Waiting for application to start..."
-            sleep 20
+            echo "=== Restarting application after migrations ==="
+            ENV_FILE=.production.env docker compose --profile production restart app
+            echo "Application restarted, waiting for it to start..."
+            sleep 15
             
             # Проверяем переменные окружения в контейнере приложения
             echo "Checking environment variables in app container..."
