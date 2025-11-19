@@ -94,10 +94,14 @@ jobs:
               sleep 2
             done
             
-            # Проверяем что MySQL создал пользователя правильно
-            echo "Verifying MySQL user creation..."
+            # Проверяем что MySQL создал пользователя правильно и даем доступ с любого хоста
+            echo "Verifying and fixing MySQL user permissions..."
             sleep 5
-            docker compose --profile production exec -T mysql mysql -uroot -p"${DB_PASS}" -e "SELECT User, Host FROM mysql.user WHERE User='${DB_USER}';" 2>/dev/null || echo "Warning: Could not verify MySQL user"
+            docker compose --profile production exec -T mysql mysql -uroot -p"${DB_PASS}" <<EOF 2>/dev/null || echo "Warning: Could not configure MySQL user"
+            GRANT ALL PRIVILEGES ON ${DB_NAME}.* TO '${DB_USER}'@'%' IDENTIFIED BY '${DB_PASS}';
+            FLUSH PRIVILEGES;
+            SELECT User, Host FROM mysql.user WHERE User='${DB_USER}';
+EOF
             
             # Ждем запуска приложения
             echo "Waiting for application to start..."
