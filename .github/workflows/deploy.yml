@@ -98,9 +98,10 @@ jobs:
             echo "Configuring MySQL user permissions for Docker network..."
             sleep 5
             # Создаем пользователя с доступом с любого хоста и даем права
-            docker compose --profile production exec -T mysql mysql -uroot -p"${DB_PASS}" -e "CREATE USER IF NOT EXISTS '${DB_USER}'@'%' IDENTIFIED BY '${DB_PASS}'; GRANT ALL PRIVILEGES ON ${DB_NAME}.* TO '${DB_USER}'@'%'; FLUSH PRIVILEGES;" 2>&1 || echo "Warning: Could not configure MySQL user"
+            # Используем ENV_FILE для правильной загрузки переменных окружения
+            ENV_FILE=.production.env docker compose --profile production exec -T mysql mysql -uroot -p"${DB_PASS}" -e "CREATE USER IF NOT EXISTS '${DB_USER}'@'%' IDENTIFIED BY '${DB_PASS}'; GRANT ALL PRIVILEGES ON ${DB_NAME}.* TO '${DB_USER}'@'%'; FLUSH PRIVILEGES;" 2>&1 || echo "Warning: Could not configure MySQL user"
             # Проверяем что пользователь создан правильно
-            docker compose --profile production exec -T mysql mysql -uroot -p"${DB_PASS}" -e "SELECT User, Host FROM mysql.user WHERE User='${DB_USER}';" 2>&1 || echo "Warning: Could not verify MySQL user"
+            ENV_FILE=.production.env docker compose --profile production exec -T mysql mysql -uroot -p"${DB_PASS}" -e "SELECT User, Host FROM mysql.user WHERE User='${DB_USER}';" 2>&1 || echo "Warning: Could not verify MySQL user"
             
             # Ждем запуска приложения
             echo "Waiting for application to start..."
@@ -108,7 +109,7 @@ jobs:
             
             # Проверяем переменные окружения в контейнере приложения
             echo "Checking environment variables in app container..."
-            docker compose --profile production exec -T app env | grep -E "DB_|NODE_ENV" || echo "Warning: Could not check env vars"
+            ENV_FILE=.production.env docker compose --profile production exec -T app env | grep -E "DB_|NODE_ENV" || echo "Warning: Could not check env vars"
             
             # Проверяем что приложение отвечает
             echo "Checking application health endpoint..."
@@ -130,7 +131,7 @@ jobs:
                 cat .production.env | grep -v "PASS\|TOKEN" || echo "File not readable"
                 echo ""
                 echo "=== Checking if app container has env vars ==="
-                docker compose --profile production exec -T app env | grep -E "DB_|NODE_ENV" || echo "Cannot exec into container"
+                ENV_FILE=.production.env docker compose --profile production exec -T app env | grep -E "DB_|NODE_ENV" || echo "Cannot exec into container"
                 echo ""
                 echo "=== Rolling back ==="
                 
