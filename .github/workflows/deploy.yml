@@ -34,6 +34,8 @@ jobs:
             echo "CURRENT_COMMIT=$CURRENT_COMMIT" > /tmp/rollback_info
             
             # Получаем последние изменения
+            # Переключаемся на HTTPS если используется SSH URL
+            git remote set-url origin https://github.com/temakulakov/bx-tg-notify.git || true
             git fetch origin
             git reset --hard origin/main
             
