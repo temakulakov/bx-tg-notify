@@ -1,0 +1,15 @@
+INSERT INTO shebo.users_shebo (id, bitrix_id, name, telegram_ids, created_at, updated_at, isAdmin) VALUES (2, 12, 'Юля Нечволода', '[7362410205]', '2025-11-05 14:15:46.583896', '2025-11-09 11:14:31.827970', 0);
+INSERT INTO shebo.users_shebo (id, bitrix_id, name, telegram_ids, created_at, updated_at, isAdmin) VALUES (3, 10, 'Виктория Горбунова', '[]', '2025-11-05 14:15:46.583896', '2025-11-10 06:24:50.000000', 0);
+INSERT INTO shebo.users_shebo (id, bitrix_id, name, telegram_ids, created_at, updated_at, isAdmin) VALUES (6, 1, 'Егор Рощупкин', '[264506872]', '2025-11-05 14:15:46.583896', '2025-11-13 14:48:58.000950', 1);
+INSERT INTO shebo.users_shebo (id, bitrix_id, name, telegram_ids, created_at, updated_at, isAdmin) VALUES (7, 32, 'Дмитрий Жирков', '[]', '2025-11-05 14:15:46.583896', '2025-11-05 14:15:46.600397', 0);
+INSERT INTO shebo.users_shebo (id, bitrix_id, name, telegram_ids, created_at, updated_at, isAdmin) VALUES (9, 36, 'Олег', '[]', '2025-11-05 14:15:46.583896', '2025-11-05 14:15:46.600397', 0);
+INSERT INTO shebo.users_shebo (id, bitrix_id, name, telegram_ids, created_at, updated_at, isAdmin) VALUES (10, 14, 'Оксана Рощупкина', '[]', '2025-11-05 14:15:46.583896', '2025-11-05 14:15:46.600397', 0);
+INSERT INTO shebo.users_shebo (id, bitrix_id, name, telegram_ids, created_at, updated_at, isAdmin) VALUES (12, 8, 'Константин Козлов', '[5293695558]', '2025-11-05 14:15:46.583896', '2025-11-13 14:48:58.032928', 1);
+INSERT INTO shebo.users_shebo (id, bitrix_id, name, telegram_ids, created_at, updated_at, isAdmin) VALUES (15, 16, 'Павел Немцев', '[263822801]', '2025-11-05 14:15:46.583896', '2025-11-09 11:14:31.839872', 0);
+INSERT INTO shebo.users_shebo (id, bitrix_id, name, telegram_ids, created_at, updated_at, isAdmin) VALUES (36, 94, 'Константин', '[]', '2025-11-05 14:15:46.583896', '2025-11-13 14:48:58.044454', 1);
+INSERT INTO shebo.users_shebo (id, bitrix_id, name, telegram_ids, created_at, updated_at, isAdmin) VALUES (37, 112, 'Никита', '[5246375100]', '2025-11-05 14:15:46.583896', '2025-11-17 11:22:28.000000', 0);
+INSERT INTO shebo.users_shebo (id, bitrix_id, name, telegram_ids, created_at, updated_at, isAdmin) VALUES (38, 114, 'Артем', '[398570152]', '2025-11-05 14:15:46.583896', '2025-11-19 14:00:40.000000', 1);
+INSERT INTO shebo.users_shebo (id, bitrix_id, name, telegram_ids, created_at, updated_at, isAdmin) VALUES (39, 118, 'Мадина', '[599101623]', '2025-11-05 14:15:46.583896', '2025-11-09 11:14:31.843520', 0);
+INSERT INTO shebo.users_shebo (id, bitrix_id, name, telegram_ids, created_at, updated_at, isAdmin) VALUES (41, 120, 'Тест Телеграм бот', '[]', '2025-11-05 14:15:46.583896', '2025-11-17 20:08:56.000000', 0);
+INSERT INTO shebo.users_shebo (id, bitrix_id, name, telegram_ids, created_at, updated_at, isAdmin) VALUES (52, 124, 'Рами', '[656640289]', '2025-11-05 14:15:46.583896', '2025-11-09 11:14:31.844399', 0);
+INSERT INTO shebo.users_shebo (id, bitrix_id, name, telegram_ids, created_at, updated_at, isAdmin) VALUES (53, 78, 'Владислав Волков', '[7843492069]', '2025-11-10 11:00:00.241324', '2025-11-13 08:38:16.000000', 0);
