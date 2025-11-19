@@ -42,7 +42,7 @@ import { WebappModule } from './webapp/webapp.module';
     AuthModule,
     WebappModule,
   ],
-  controllers: [],
+  controllers: [AppController],
   providers: [AppService, CommentsService],
 })
 export class AppModule {
