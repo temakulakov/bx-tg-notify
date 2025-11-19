@@ -97,9 +97,9 @@ jobs:
             # Исправляем права пользователя MySQL для доступа из Docker сети
             echo "Configuring MySQL user permissions for Docker network..."
             sleep 5
-            # Создаем пользователя с доступом с любого хоста и даем права
+            # Удаляем пользователя если он существует и создаем заново с доступом с любого хоста
             # Используем ENV_FILE для правильной загрузки переменных окружения
-            ENV_FILE=.production.env docker compose --profile production exec -T mysql mysql -uroot -p"${DB_PASS}" -e "CREATE USER IF NOT EXISTS '${DB_USER}'@'%' IDENTIFIED BY '${DB_PASS}'; GRANT ALL PRIVILEGES ON ${DB_NAME}.* TO '${DB_USER}'@'%'; FLUSH PRIVILEGES;" 2>&1 || echo "Warning: Could not configure MySQL user"
+            ENV_FILE=.production.env docker compose --profile production exec -T mysql mysql -uroot -p"${DB_PASS}" -e "DROP USER IF EXISTS '${DB_USER}'@'localhost'; DROP USER IF EXISTS '${DB_USER}'@'%'; CREATE USER '${DB_USER}'@'%' IDENTIFIED BY '${DB_PASS}'; GRANT ALL PRIVILEGES ON ${DB_NAME}.* TO '${DB_USER}'@'%'; FLUSH PRIVILEGES;" 2>&1 || echo "Warning: Could not configure MySQL user"
             # Проверяем что пользователь создан правильно
             ENV_FILE=.production.env docker compose --profile production exec -T mysql mysql -uroot -p"${DB_PASS}" -e "SELECT User, Host FROM mysql.user WHERE User='${DB_USER}';" 2>&1 || echo "Warning: Could not verify MySQL user"
             
