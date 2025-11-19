@@ -48,23 +48,23 @@ jobs:
             
             # Создаем .env файл из секретов
             cat > .production.env << EOF
-          NODE_ENV=production
-          
-          DB_HOST=mysql
-          DB_PORT=3306
-          DB_USER=${DB_USER}
-          DB_PASS=${DB_PASS}
-          DB_NAME=${DB_NAME}
-          
-          BX24_OUTGOING_TOKEN=${BX24_OUTGOING_TOKEN}
-          BX24_INCOMING_TOKEN=${BX24_INCOMING_TOKEN}
-          BX24_INCOMING_USER=${BX24_INCOMING_USER}
-          BX24_DOMAIN=${BX24_DOMAIN}
-          
-          TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
-          
-          APP_PORT=3000
-          EOF
+NODE_ENV=production
+
+DB_HOST=mysql
+DB_PORT=3306
+DB_USER=${DB_USER}
+DB_PASS=${DB_PASS}
+DB_NAME=${DB_NAME}
+
+BX24_OUTGOING_TOKEN=${BX24_OUTGOING_TOKEN}
+BX24_INCOMING_TOKEN=${BX24_INCOMING_TOKEN}
+BX24_INCOMING_USER=${BX24_INCOMING_USER}
+BX24_DOMAIN=${BX24_DOMAIN}
+
+TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+
+APP_PORT=3000
+EOF
             
             # Останавливаем контейнеры
             docker compose --profile production down || true
