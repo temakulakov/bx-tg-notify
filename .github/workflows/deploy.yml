@@ -156,6 +156,26 @@ jobs:
             echo "=== DEBUG: Testing MySQL user connection ==="
             ENV_FILE=.production.env docker compose --profile production exec -T mysql mysql -u"${DB_USER}" -e "USE \`${DB_NAME}\`; SELECT 'Connection successful' as status, USER() as \`current_user\`, DATABASE() as \`current_database\`;" 2>&1 || echo "Warning: Could not test MySQL user connection"
             
+            # Выполняем миграции базы данных
+            echo ""
+            echo "=== Running database migrations ==="
+            # Используем MYSQL_PWD для безопасной передачи пароля
+            export MYSQL_PWD="${DB_PASS}"
+            if [ -f migrations/create-all-tables.sql ]; then
+              echo "Running create-all-tables.sql migration..."
+              cat migrations/create-all-tables.sql | ENV_FILE=.production.env docker compose --profile production exec -T -e MYSQL_PWD="${DB_PASS}" mysql mysql -u"${DB_USER}" "${DB_NAME}" 2>&1 || echo "Warning: Migration failed (may already be applied)"
+            fi
+            # Также выполняем существующие миграции для обратной совместимости
+            if [ -f migrations/add-webapp-tables.sql ]; then
+              echo "Running add-webapp-tables.sql migration..."
+              cat migrations/add-webapp-tables.sql | ENV_FILE=.production.env docker compose --profile production exec -T -e MYSQL_PWD="${DB_PASS}" mysql mysql -u"${DB_USER}" "${DB_NAME}" 2>&1 || echo "Warning: Migration failed (may already be applied)"
+            fi
+            if [ -f migrations/add-replicate-column.sql ]; then
+              echo "Running add-replicate-column.sql migration..."
+              cat migrations/add-replicate-column.sql | ENV_FILE=.production.env docker compose --profile production exec -T -e MYSQL_PWD="${DB_PASS}" mysql mysql -u"${DB_USER}" "${DB_NAME}" 2>&1 || echo "Warning: Migration failed (may already be applied)"
+            fi
+            echo "Migrations completed!"
+            
             # Выводим пароль из .production.env для сравнения
             echo ""
             echo "=== DEBUG: Password from .production.env file ==="
