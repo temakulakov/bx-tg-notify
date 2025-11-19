@@ -78,39 +78,56 @@ jobs:
             # Собираем и запускаем
             ENV_FILE=.production.env docker compose --profile production up -d --build
             
-            # Ждем готовности
-            echo "Waiting for services to be healthy..."
-            sleep 15
-            
-            # Проверяем здоровье контейнеров
-            if ! docker compose --profile production ps | grep -q "healthy"; then
-              echo "Health check failed, rolling back..."
-              
-              # Откат к предыдущей версии
-              if [ "$CURRENT_COMMIT" != "none" ]; then
-                git reset --hard $CURRENT_COMMIT
-                ENV_FILE=.production.env docker compose --profile production up -d --build
-              else
-                docker compose --profile production down
+            # Ждем готовности MySQL
+            echo "Waiting for MySQL to be healthy..."
+            for i in {1..30}; do
+              if docker compose --profile production ps mysql | grep -q "healthy"; then
+                echo "MySQL is healthy!"
+                break
               fi
-              
-              exit 1
-            fi
+              if [ $i -eq 30 ]; then
+                echo "ERROR: MySQL did not become healthy in time"
+                docker compose --profile production logs mysql | tail -50
+                exit 1
+              fi
+              echo "Waiting for MySQL... ($i/30)"
+              sleep 2
+            done
+            
+            # Ждем запуска приложения
+            echo "Waiting for application to start..."
+            sleep 20
             
             # Проверяем что приложение отвечает
-            sleep 5
-            if ! curl -f http://localhost:3000/health > /dev/null 2>&1; then
-              echo "Application health check failed, rolling back..."
-              
-              if [ "$CURRENT_COMMIT" != "none" ]; then
-                git reset --hard $CURRENT_COMMIT
-                ENV_FILE=.production.env docker compose --profile production up -d --build
-              else
-                docker compose --profile production down
+            echo "Checking application health endpoint..."
+            for i in {1..30}; do
+              if curl -f http://localhost:3000/health > /dev/null 2>&1; then
+                echo "Application is healthy!"
+                break
               fi
-              
-              exit 1
-            fi
+              if [ $i -eq 30 ]; then
+                echo "ERROR: Application health check failed after 60 seconds"
+                echo "Application logs:"
+                docker compose --profile production logs app | tail -100
+                echo ""
+                echo "MySQL logs:"
+                docker compose --profile production logs mysql | tail -50
+                echo ""
+                echo "Rolling back..."
+                
+                # Откат к предыдущей версии
+                if [ "$CURRENT_COMMIT" != "none" ]; then
+                  git reset --hard $CURRENT_COMMIT
+                  ENV_FILE=.production.env docker compose --profile production up -d --build
+                else
+                  docker compose --profile production down
+                fi
+                
+                exit 1
+              fi
+              echo "Waiting for application health... ($i/30)"
+              sleep 2
+            done
             
             echo "Deployment successful!"
         env:
