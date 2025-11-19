@@ -105,15 +105,22 @@ jobs:
                 echo "Application is healthy!"
                 break
               fi
-              if [ $i -eq 30 ]; then
-                echo "ERROR: Application health check failed after 60 seconds"
-                echo "Application logs:"
-                docker compose --profile production logs app | tail -100
-                echo ""
-                echo "MySQL logs:"
-                docker compose --profile production logs mysql | tail -50
-                echo ""
-                echo "Rolling back..."
+  if [ $i -eq 30 ]; then
+    echo "ERROR: Application health check failed after 60 seconds"
+    echo ""
+    echo "=== Application logs ==="
+    docker compose --profile production logs app | tail -100
+    echo ""
+    echo "=== MySQL logs ==="
+    docker compose --profile production logs mysql | tail -50
+    echo ""
+    echo "=== Checking .production.env file ==="
+    cat .production.env | grep -v "PASS\|TOKEN" || echo "File not readable"
+    echo ""
+    echo "=== Checking if app container has env vars ==="
+    docker compose --profile production exec -T app env | grep -E "DB_|NODE_ENV" || echo "Cannot exec into container"
+    echo ""
+    echo "=== Rolling back ==="
                 
                 # Откат к предыдущей версии
                 if [ "$CURRENT_COMMIT" != "none" ]; then
@@ -125,9 +132,14 @@ jobs:
                 
                 exit 1
               fi
-              echo "Waiting for application health... ($i/30)"
-              sleep 2
-            done
+  echo "Waiting for application health... ($i/30)"
+  # Показываем последние логи приложения для отладки
+  if [ $((i % 5)) -eq 0 ]; then
+    echo "Recent app logs:"
+    docker compose --profile production logs app --tail=10 2>&1 | tail -5
+  fi
+  sleep 2
+done
             
             echo "Deployment successful!"
         env:
