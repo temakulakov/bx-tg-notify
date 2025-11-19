@@ -97,12 +97,7 @@ jobs:
             # Исправляем права пользователя MySQL для доступа из Docker сети
             echo "Configuring MySQL user permissions for Docker network..."
             sleep 5
-            docker compose --profile production exec -T mysql mysql -uroot -p"${DB_PASS}" <<EOF 2>/dev/null || echo "Warning: Could not configure MySQL user"
-            CREATE USER IF NOT EXISTS '${DB_USER}'@'%' IDENTIFIED BY '${DB_PASS}';
-            GRANT ALL PRIVILEGES ON ${DB_NAME}.* TO '${DB_USER}'@'%';
-            FLUSH PRIVILEGES;
-            SELECT User, Host FROM mysql.user WHERE User='${DB_USER}';
-EOF
+            docker compose --profile production exec -T mysql mysql -uroot -p"${DB_PASS}" -e "CREATE USER IF NOT EXISTS '${DB_USER}'@'%' IDENTIFIED BY '${DB_PASS}'; GRANT ALL PRIVILEGES ON ${DB_NAME}.* TO '${DB_USER}'@'%'; FLUSH PRIVILEGES; SELECT User, Host FROM mysql.user WHERE User='${DB_USER}';" 2>/dev/null || echo "Warning: Could not configure MySQL user"
             
             # Ждем запуска приложения
             echo "Waiting for application to start..."
