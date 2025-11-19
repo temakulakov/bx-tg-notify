@@ -94,9 +94,18 @@ jobs:
               sleep 2
             done
             
+            # Проверяем что MySQL создал пользователя правильно
+            echo "Verifying MySQL user creation..."
+            sleep 5
+            docker compose --profile production exec -T mysql mysql -uroot -p"${DB_PASS}" -e "SELECT User, Host FROM mysql.user WHERE User='${DB_USER}';" 2>/dev/null || echo "Warning: Could not verify MySQL user"
+            
             # Ждем запуска приложения
             echo "Waiting for application to start..."
             sleep 20
+            
+            # Проверяем переменные окружения в контейнере приложения
+            echo "Checking environment variables in app container..."
+            docker compose --profile production exec -T app env | grep -E "DB_|NODE_ENV" || echo "Warning: Could not check env vars"
             
             # Проверяем что приложение отвечает
             echo "Checking application health endpoint..."
