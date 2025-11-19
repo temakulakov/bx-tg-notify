@@ -32,10 +32,11 @@ jobs:
           BX24_INCOMING_USER: ${{ secrets.BX24_INCOMING_USER }}
           BX24_DOMAIN: ${{ secrets.BX24_DOMAIN }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          APP_DIR: ${{ secrets.APP_DIR || '/root/bx-tg-notify' }}
+          APP_DIR: ${{ secrets.APP_DIR }}
         script: |
             set -e
-            cd ${APP_DIR:-/root/bx-tg-notify}
+            APP_DIR="${APP_DIR:-/root/bx-tg-notify}"
+            cd "$APP_DIR"
             
             # Сохраняем текущую версию для отката
             CURRENT_COMMIT=$(git rev-parse HEAD 2>/dev/null || echo "none")

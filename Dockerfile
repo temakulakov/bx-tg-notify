@@ -1,6 +1,9 @@
 # Базовый образ
 FROM node:20-alpine
 
+# Устанавливаем curl для healthcheck
+RUN apk add --no-cache curl
+
 # Устанавливаем рабочую директорию
 WORKDIR /app
 
