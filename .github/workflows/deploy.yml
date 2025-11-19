@@ -23,17 +23,7 @@ jobs:
           port: 22
           envs: DB_USER,DB_PASS,DB_NAME,BX24_OUTGOING_TOKEN,BX24_INCOMING_TOKEN,BX24_INCOMING_USER,BX24_DOMAIN,TELEGRAM_BOT_TOKEN,APP_DIR
           script_stop: true
-        env:
-          DB_USER: ${{ secrets.DB_USER }}
-          DB_PASS: ${{ secrets.DB_PASS }}
-          DB_NAME: ${{ secrets.DB_NAME }}
-          BX24_OUTGOING_TOKEN: ${{ secrets.BX24_OUTGOING_TOKEN }}
-          BX24_INCOMING_TOKEN: ${{ secrets.BX24_INCOMING_TOKEN }}
-          BX24_INCOMING_USER: ${{ secrets.BX24_INCOMING_USER }}
-          BX24_DOMAIN: ${{ secrets.BX24_DOMAIN }}
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          APP_DIR: ${{ secrets.APP_DIR }}
-        script: |
+          script: |
             set -e
             APP_DIR="${APP_DIR:-/root/bx-tg-notify}"
             cd "$APP_DIR"
@@ -107,6 +97,16 @@ jobs:
             fi
             
             echo "Deployment successful!"
+        env:
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASS: ${{ secrets.DB_PASS }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          BX24_OUTGOING_TOKEN: ${{ secrets.BX24_OUTGOING_TOKEN }}
+          BX24_INCOMING_TOKEN: ${{ secrets.BX24_INCOMING_TOKEN }}
+          BX24_INCOMING_USER: ${{ secrets.BX24_INCOMING_USER }}
+          BX24_DOMAIN: ${{ secrets.BX24_DOMAIN }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          APP_DIR: ${{ secrets.APP_DIR }}
 
       - name: Notify on failure
         if: failure()
