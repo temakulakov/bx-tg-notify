@@ -58,15 +58,31 @@ jobs:
             printf 'APP_PORT=3000\n' >> .production.env
             
             # Проверяем что файл создан (без показа паролей)
-            echo "Checking .production.env file..."
+            echo "=== DEBUG: Checking .production.env file ==="
             if [ -f .production.env ]; then
-              echo "File exists. DB_USER=$(grep '^DB_USER=' .production.env | cut -d'=' -f2)"
+              echo "File exists."
+              echo "DB_USER=$(grep '^DB_USER=' .production.env | cut -d'=' -f2)"
               echo "DB_NAME=$(grep '^DB_NAME=' .production.env | cut -d'=' -f2)"
-              echo "DB_PASS is set: $(grep -q '^DB_PASS=' .production.env && echo 'yes' || echo 'no')"
+              echo "DB_HOST=$(grep '^DB_HOST=' .production.env | cut -d'=' -f2)"
+              echo "DB_PORT=$(grep '^DB_PORT=' .production.env | cut -d'=' -f2)"
+              DB_PASS_LENGTH=$(grep '^DB_PASS=' .production.env | cut -d'=' -f2 | wc -c)
+              echo "DB_PASS length: $((DB_PASS_LENGTH - 1)) characters"
+              echo "DB_PASS first char: $(grep '^DB_PASS=' .production.env | cut -d'=' -f2 | cut -c1)"
+              echo "DB_PASS last char: $(grep '^DB_PASS=' .production.env | cut -d'=' -f2 | rev | cut -c1)"
             else
               echo "ERROR: .production.env file not created!"
               exit 1
             fi
+            
+            # Выводим данные из secrets (безопасно)
+            echo ""
+            echo "=== DEBUG: Secrets data (from environment) ==="
+            echo "DB_USER=${DB_USER}"
+            echo "DB_NAME=${DB_NAME}"
+            echo "DB_HOST=${DB_HOST:-not set}"
+            echo "DB_PASS length: ${#DB_PASS} characters"
+            echo "DB_PASS first char: ${DB_PASS:0:1}"
+            echo "DB_PASS last char: ${DB_PASS: -1}"
             
             # Останавливаем контейнеры и удаляем volumes для пересоздания MySQL с новыми учетными данными
             echo "Stopping containers and removing MySQL volume..."
@@ -95,13 +111,32 @@ jobs:
             done
             
             # Исправляем права пользователя MySQL для доступа из Docker сети
-            echo "Configuring MySQL user permissions for Docker network..."
+            echo ""
+            echo "=== DEBUG: Configuring MySQL user permissions ==="
+            echo "Using DB_USER: ${DB_USER}"
+            echo "Using DB_NAME: ${DB_NAME}"
+            echo "Using DB_PASS length: ${#DB_PASS} characters"
             sleep 5
+            
+            # Проверяем какие пользователи уже существуют
+            echo ""
+            echo "=== DEBUG: Checking existing MySQL users ==="
+            ENV_FILE=.production.env docker compose --profile production exec -T mysql mysql -uroot -p"${DB_PASS}" -e "SELECT User, Host, authentication_string IS NOT NULL as has_password FROM mysql.user WHERE User='${DB_USER}';" 2>&1 || echo "Warning: Could not query MySQL users"
+            
             # Удаляем пользователя если он существует и создаем заново с доступом с любого хоста
-            # Используем ENV_FILE для правильной загрузки переменных окружения
+            echo ""
+            echo "=== DEBUG: Dropping and recreating MySQL user ==="
             ENV_FILE=.production.env docker compose --profile production exec -T mysql mysql -uroot -p"${DB_PASS}" -e "DROP USER IF EXISTS '${DB_USER}'@'localhost'; DROP USER IF EXISTS '${DB_USER}'@'%'; CREATE USER '${DB_USER}'@'%' IDENTIFIED BY '${DB_PASS}'; GRANT ALL PRIVILEGES ON ${DB_NAME}.* TO '${DB_USER}'@'%'; FLUSH PRIVILEGES;" 2>&1 || echo "Warning: Could not configure MySQL user"
+            
             # Проверяем что пользователь создан правильно
-            ENV_FILE=.production.env docker compose --profile production exec -T mysql mysql -uroot -p"${DB_PASS}" -e "SELECT User, Host FROM mysql.user WHERE User='${DB_USER}';" 2>&1 || echo "Warning: Could not verify MySQL user"
+            echo ""
+            echo "=== DEBUG: Verifying MySQL user after creation ==="
+            ENV_FILE=.production.env docker compose --profile production exec -T mysql mysql -uroot -p"${DB_PASS}" -e "SELECT User, Host, plugin, authentication_string IS NOT NULL as has_password FROM mysql.user WHERE User='${DB_USER}';" 2>&1 || echo "Warning: Could not verify MySQL user"
+            
+            # Проверяем что пользователь может подключиться
+            echo ""
+            echo "=== DEBUG: Testing MySQL user connection ==="
+            ENV_FILE=.production.env docker compose --profile production exec -T mysql mysql -u"${DB_USER}" -p"${DB_PASS}" -e "SELECT 'Connection successful' as status, USER() as current_user, DATABASE() as current_database;" 2>&1 || echo "Warning: Could not test MySQL user connection"
             
             # Ждем запуска приложения
             echo "Waiting for application to start..."
