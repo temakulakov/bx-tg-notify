@@ -8,10 +8,17 @@ services:
     env_file:
       - ${ENV_FILE:-.development.env}
     ports:
-      - "${APP_PORT:-3000}:${APP_PORT:-3000}" # если переменная не указана, используется 3000
+      - "127.0.0.1:${APP_PORT:-3000}:${APP_PORT:-3000}" # доступен только на localhost через nginx
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
     command: npm run start:prod
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     profiles:
       - production
 
@@ -27,9 +34,15 @@ services:
       MYSQL_USER: ${DB_USER} # пользователь
       MYSQL_PASSWORD: ${DB_PASS} # пароль пользователя
     ports:
-      - "${DB_PORT}:${DB_PORT}"
+      - "127.0.0.1:${DB_PORT:-3306}:3306" # доступен только на localhost для безопасности
     volumes:
       - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_PASS}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
 volumes:
   db_data:
