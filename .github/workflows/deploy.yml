@@ -41,21 +41,27 @@ jobs:
             
             # Создаем .env файл из секретов
             # Используем printf для безопасной обработки специальных символов
-            printf 'NODE_ENV=production\n\n' > .production.env
-            printf 'DB_HOST=mysql\n' >> .production.env
-            printf 'DB_PORT=3306\n' >> .production.env
-            printf 'DB_USER=%s\n' "${DB_USER}" >> .production.env
-            printf 'DB_PASS=%s\n' "${DB_PASS}" >> .production.env
-            printf 'DB_NAME=%s\n' "${DB_NAME}" >> .production.env
-            printf '\n' >> .production.env
-            printf 'BX24_OUTGOING_TOKEN=%s\n' "${BX24_OUTGOING_TOKEN}" >> .production.env
-            printf 'BX24_INCOMING_TOKEN=%s\n' "${BX24_INCOMING_TOKEN}" >> .production.env
-            printf 'BX24_INCOMING_USER=%s\n' "${BX24_INCOMING_USER}" >> .production.env
-            printf 'BX24_DOMAIN=%s\n' "${BX24_DOMAIN}" >> .production.env
-            printf '\n' >> .production.env
-            printf 'TELEGRAM_BOT_TOKEN=%s\n' "${TELEGRAM_BOT_TOKEN}" >> .production.env
-            printf '\n' >> .production.env
-            printf 'APP_PORT=3000\n' >> .production.env
+            # Экранируем значения, которые могут содержать специальные символы
+            {
+              echo "NODE_ENV=production"
+              echo ""
+              echo "DB_HOST=mysql"
+              echo "DB_PORT=3306"
+              echo "DB_USER=${DB_USER}"
+              # Экранируем пароль: заменяем $ на $$ для docker-compose и экранируем кавычки
+              DB_PASS_ESCAPED=$(printf '%s' "${DB_PASS}" | sed 's/\$/$$/g')
+              echo "DB_PASS=${DB_PASS_ESCAPED}"
+              echo "DB_NAME=${DB_NAME}"
+              echo ""
+              echo "BX24_OUTGOING_TOKEN=${BX24_OUTGOING_TOKEN}"
+              echo "BX24_INCOMING_TOKEN=${BX24_INCOMING_TOKEN}"
+              echo "BX24_INCOMING_USER=${BX24_INCOMING_USER}"
+              echo "BX24_DOMAIN=${BX24_DOMAIN}"
+              echo ""
+              echo "TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}"
+              echo ""
+              echo "APP_PORT=3000"
+            } > .production.env
             
             # Проверяем что файл создан (без показа паролей)
             echo "=== DEBUG: Checking .production.env file ==="
@@ -109,33 +115,46 @@ jobs:
               sleep 2
             done
             
+            # Дополнительно ждем, чтобы MySQL полностью инициализировался
+            echo "Waiting for MySQL to be fully ready..."
+            sleep 10
+            
             # Исправляем права пользователя MySQL для доступа из Docker сети
             echo ""
             echo "=== DEBUG: Configuring MySQL user permissions ==="
             echo "Using DB_USER: ${DB_USER}"
             echo "Using DB_NAME: ${DB_NAME}"
             echo "Using DB_PASS length: ${#DB_PASS} characters"
-            sleep 5
+            
+            # Используем MYSQL_PWD для безопасной передачи пароля (избегаем проблем с спецсимволами)
+            export MYSQL_PWD="${DB_PASS}"
             
             # Проверяем какие пользователи уже существуют
             echo ""
             echo "=== DEBUG: Checking existing MySQL users ==="
-            ENV_FILE=.production.env docker compose --profile production exec -T mysql mysql -uroot -p"${DB_PASS}" -e "SELECT User, Host, authentication_string IS NOT NULL as has_password FROM mysql.user WHERE User='${DB_USER}';" 2>&1 || echo "Warning: Could not query MySQL users"
+            ENV_FILE=.production.env docker compose --profile production exec -T mysql mysql -uroot -e "SELECT User, Host, authentication_string IS NOT NULL as has_password FROM mysql.user WHERE User='${DB_USER}';" 2>&1 || echo "Warning: Could not query MySQL users"
             
             # Удаляем пользователя если он существует и создаем заново с доступом с любого хоста
+            # Экранируем пароль для SQL запроса: одинарные кавычки удваиваем
+            DB_PASS_ESCAPED=$(echo "${DB_PASS}" | sed "s/'/''/g")
+            DB_USER_ESCAPED=$(echo "${DB_USER}" | sed "s/'/''/g")
+            DB_NAME_ESCAPED=$(echo "${DB_NAME}" | sed "s/'/''/g")
             echo ""
             echo "=== DEBUG: Dropping and recreating MySQL user ==="
-            ENV_FILE=.production.env docker compose --profile production exec -T mysql mysql -uroot -p"${DB_PASS}" -e "DROP USER IF EXISTS '${DB_USER}'@'localhost'; DROP USER IF EXISTS '${DB_USER}'@'%'; CREATE USER '${DB_USER}'@'%' IDENTIFIED BY '${DB_PASS}'; GRANT ALL PRIVILEGES ON ${DB_NAME}.* TO '${DB_USER}'@'%'; FLUSH PRIVILEGES;" 2>&1 || echo "Warning: Could not configure MySQL user"
+            # Создаем базу данных, если она не существует
+            ENV_FILE=.production.env docker compose --profile production exec -T mysql mysql -uroot -e "CREATE DATABASE IF NOT EXISTS \`${DB_NAME_ESCAPED}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;" 2>&1 || echo "Warning: Could not create database"
+            # Удаляем и создаем пользователя заново
+            ENV_FILE=.production.env docker compose --profile production exec -T mysql mysql -uroot -e "DROP USER IF EXISTS '${DB_USER_ESCAPED}'@'localhost'; DROP USER IF EXISTS '${DB_USER_ESCAPED}'@'%'; CREATE USER '${DB_USER_ESCAPED}'@'%' IDENTIFIED BY '${DB_PASS_ESCAPED}'; GRANT ALL PRIVILEGES ON \`${DB_NAME_ESCAPED}\`.* TO '${DB_USER_ESCAPED}'@'%'; FLUSH PRIVILEGES;" 2>&1 || echo "Warning: Could not configure MySQL user"
             
             # Проверяем что пользователь создан правильно - ПОЛНАЯ ИНФОРМАЦИЯ
             echo ""
             echo "=== DEBUG: Verifying MySQL user after creation - FULL INFO ==="
-            ENV_FILE=.production.env docker compose --profile production exec -T mysql mysql -uroot -p"${DB_PASS}" -e "SELECT User, Host, plugin, LEFT(authentication_string, 20) as auth_string_start, LENGTH(authentication_string) as auth_string_length FROM mysql.user WHERE User='${DB_USER}';" 2>&1 || echo "Warning: Could not verify MySQL user"
+            ENV_FILE=.production.env docker compose --profile production exec -T mysql mysql -uroot -e "SELECT User, Host, plugin, LEFT(authentication_string, 20) as auth_string_start, LENGTH(authentication_string) as auth_string_length FROM mysql.user WHERE User='${DB_USER}';" 2>&1 || echo "Warning: Could not verify MySQL user"
             
-            # Проверяем что пользователь может подключиться
+            # Проверяем что пользователь может подключиться к базе данных
             echo ""
             echo "=== DEBUG: Testing MySQL user connection ==="
-            ENV_FILE=.production.env docker compose --profile production exec -T mysql mysql -u"${DB_USER}" -p"${DB_PASS}" -e "SELECT 'Connection successful' as status, USER() as current_user, DATABASE() as current_database;" 2>&1 || echo "Warning: Could not test MySQL user connection"
+            ENV_FILE=.production.env docker compose --profile production exec -T mysql mysql -u"${DB_USER}" -e "USE \`${DB_NAME}\`; SELECT 'Connection successful' as status, USER() as \`current_user\`, DATABASE() as \`current_database\`;" 2>&1 || echo "Warning: Could not test MySQL user connection"
             
             # Выводим пароль из .production.env для сравнения
             echo ""
