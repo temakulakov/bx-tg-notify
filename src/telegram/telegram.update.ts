@@ -1,6 +1,7 @@
 import { Update, Ctx, Start, Command, Help, Hears, On } from 'nestjs-telegraf';
 import { Context } from 'telegraf';
 import { Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { TelegramRecipientService } from './telegram.recipient.service';
 import { TelegramService } from './telegram.service';
 import { UsersService } from '../users/users.service';
@@ -22,6 +23,7 @@ export class TelegramUpdate {
     private readonly recipientService: TelegramRecipientService,
     private readonly telegramService: TelegramService,
     private readonly usersService: UsersService,
+    private readonly configService: ConfigService,
   ) {}
 
   @Start()
@@ -61,14 +63,20 @@ export class TelegramUpdate {
     }
 
     // Отправляем информацию о Web App
-    const webAppUrl = `${process.env.APP_URL || 'http://localhost:3000'}/webapp`;
+    // Используем APP_URL из конфига, если не установлен - используем fallback
+    // В production всегда должен быть установлен APP_URL с HTTPS
+    const appUrl = this.configService.get<string>('APP_URL');
+    if (!appUrl || appUrl.includes('localhost')) {
+      this.logger.warn(`APP_URL not set or uses localhost: ${appUrl}. Web App may not work in production.`);
+    }
+    const webAppUrl = appUrl ? `${appUrl}/webapp` : 'http://localhost:3000/webapp';
     const webAppButton = {
       text: '📊 Открыть мониторинг',
       web_app: { url: webAppUrl },
     };
 
     await ctx.reply(
-      `Ваш Telegram ID: <b>${userId}</b>\nID текущего чата: <code>${chatId}</code>\n\nИспользуйте этот ID для авторизации на сайте.\n\nТакже вы можете открыть Web App для мониторинга системы:`,
+      `ID текущего чата: <code>${chatId}</code>\n\nИспользуйте этот ID для авторизации на сайте.\n\nТакже вы можете открыть Web App для мониторинга системы:`,
       {
         ...HTML_REPLY_OPTIONS,
         reply_markup: {

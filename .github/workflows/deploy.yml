@@ -22,7 +22,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           port: 22
-          envs: DB_USER,DB_PASS,DB_NAME,BX24_OUTGOING_TOKEN,BX24_INCOMING_TOKEN,BX24_INCOMING_USER,BX24_DOMAIN,TELEGRAM_BOT_TOKEN,APP_DIR
+          envs: DB_USER,DB_PASS,DB_NAME,BX24_OUTGOING_TOKEN,BX24_INCOMING_TOKEN,BX24_INCOMING_USER,BX24_DOMAIN,TELEGRAM_BOT_TOKEN,APP_DIR,APP_URL
           script_stop: true
           script: |
             set -e
@@ -58,9 +58,10 @@ jobs:
               echo "BX24_INCOMING_USER=${BX24_INCOMING_USER}"
               echo "BX24_DOMAIN=${BX24_DOMAIN}"
               echo ""
-              echo "TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}"
-              echo ""
-              echo "APP_PORT=3000"
+            echo "TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}"
+            echo ""
+            echo "APP_PORT=3000"
+            echo "APP_URL=${APP_URL:-https://shebo.h512.ru}"
             } > .production.env
             
             # Проверяем что файл создан (без показа паролей)
@@ -194,6 +195,12 @@ jobs:
             fi
             echo "Data loading completed!"
             
+            # Проверяем что таблицы созданы
+            echo ""
+            echo "=== Verifying tables were created ==="
+            ENV_FILE=.production.env docker compose --profile production exec -T -e MYSQL_PWD="${DB_PASS}" mysql mysql -u"${DB_USER}" "${DB_NAME}" -e "SHOW TABLES;" 2>&1 || echo "Warning: Could not list tables"
+            ENV_FILE=.production.env docker compose --profile production exec -T -e MYSQL_PWD="${DB_PASS}" mysql mysql -u"${DB_USER}" "${DB_NAME}" -e "SELECT COUNT(*) as phrases_count FROM phrases;" 2>&1 || echo "Warning: Could not query phrases table"
+            
             # Выводим пароль из .production.env для сравнения
             echo ""
             echo "=== DEBUG: Password from .production.env file ==="
@@ -205,7 +212,7 @@ jobs:
             
             # Проверяем переменные окружения в контейнере приложения
             echo "Checking environment variables in app container..."
-            ENV_FILE=.production.env docker compose --profile production exec -T app env | grep -E "DB_|NODE_ENV" || echo "Warning: Could not check env vars"
+            ENV_FILE=.production.env docker compose --profile production exec -T app env | grep -E "DB_|NODE_ENV|APP_URL" || echo "Warning: Could not check env vars"
             
             # Проверяем что приложение отвечает
             echo "Checking application health endpoint..."
@@ -261,6 +268,7 @@ jobs:
           BX24_DOMAIN: ${{ secrets.BX24_DOMAIN }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           APP_DIR: ${{ secrets.APP_DIR }}
+          APP_URL: ${{ secrets.APP_URL }}
 
       - name: Notify on failure
         if: failure()

@@ -65,8 +65,13 @@ export class TelegramService implements OnModuleInit {
    */
   async setupMiniApp() {
     try {
-      const appUrl = this.configService.get<string>('APP_URL') || 'http://localhost:3000';
-      const webAppUrl = `${appUrl}/webapp`;
+      // Используем APP_URL из конфига, если не установлен - используем fallback
+      // В production всегда должен быть установлен APP_URL с HTTPS
+      const appUrl = this.configService.get<string>('APP_URL');
+      if (!appUrl || appUrl.includes('localhost')) {
+        this.logger.warn(`APP_URL not set or uses localhost: ${appUrl}. Mini App may not work in production.`);
+      }
+      const webAppUrl = appUrl ? `${appUrl}/webapp` : 'http://localhost:3000/webapp';
 
       // Устанавливаем описание бота с информацией о Mini App
       // Максимальная длина описания: 512 символов, короткого описания: 120 символов
