@@ -58,6 +58,7 @@ BX24_INCOMING_TOKEN=your_token
 BX24_INCOMING_USER=your_user_id
 BX24_DOMAIN=https://your-domain.bitrix24.ru
 
+
 TELEGRAM_BOT_TOKEN=your_telegram_bot_token
 ```
 
