@@ -31,7 +31,7 @@ export class ParserService {
       }
 
       const responsibleId = task.responsible_ids?.[0] ?? task.created_by;
-      const url = `${domain}/company/personal/user/${responsibleId}/tasks/task/view/${task.bitrixId}`;
+      const url = `${domain}/company/personal/user/${responsibleId}/tasks/task/view/${task.bitrixId}/`;
 
       return `<a href="${url}">${this.escapeHtml(task.title)}</a>`;
     } catch (error) {
