@@ -21,7 +21,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
-          port: 864
+          port: ${{ secrets.SSH_PORT }}
           envs: DB_USER,DB_PASS,DB_NAME,BX24_OUTGOING_TOKEN,BX24_INCOMING_TOKEN,BX24_INCOMING_USER,BX24_DOMAIN,TELEGRAM_BOT_TOKEN,APP_DIR,APP_URL
           script_stop: true
           script: |
