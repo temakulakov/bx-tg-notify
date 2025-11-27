@@ -38,6 +38,12 @@ export enum YesNoEnum {
   No = 'N',
 }
 
+interface BitrixTag {
+  id: string | number;
+  name?: string;
+  title?: string;
+}
+
 export interface BitrixTask {
   id: string;
   title: string;
@@ -49,7 +55,7 @@ export interface BitrixTask {
   descriptionInBbcode: YesNoEnum;
   favorite: YesNoEnum;
   group: any[];
-
+  tags: Record<string, BitrixTag> | BitrixTag[];
   creator: BitrixInlineUser;
   responsible: BitrixInlineUser;
   action: object;

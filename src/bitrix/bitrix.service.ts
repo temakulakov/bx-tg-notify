@@ -37,6 +37,7 @@ export class BitrixService {
         'REPLICATE',
         'CREATED_BY',
         'RESPONSIBLE_ID',
+        'TAGS',
       ],
     });
   }

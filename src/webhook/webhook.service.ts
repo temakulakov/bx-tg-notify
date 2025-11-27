@@ -87,7 +87,26 @@ export class WebhookService {
       return;
     }
 
-    const { updatedTask, changes, notifyAsCreated } = updateResult;
+    const { updatedTask, changes, notifyAsCreated, notifyAsFixed, isRegular } = updateResult;
+
+    // Если задача регулярная и не было исправления, не отправляем уведомления
+    if (isRegular && !notifyAsFixed) {
+      this.logger.debug(
+        `Задача ${taskId} регулярная, обновлена в БД, уведомления не отправляются`,
+      );
+      return;
+    }
+
+    // Уведомление об исправлении (задача была регулярной, стала обычной)
+    if (notifyAsFixed) {
+      this.logger.log(
+        `Задача ${taskId} исправлена (была регулярной, теперь обычная), отправляем уведомление об исправлении`,
+      );
+      await this.telegramService.notifyTaskCreated(updatedTask, {
+        heading: '<b>✅ Задача исправлена</b>\n\nЗадача была помечена как регулярная, но теперь исправлена и требует внимания.',
+      });
+      return;
+    }
 
     if (notifyAsCreated) {
       await this.telegramService.notifyTaskCreated(updatedTask, {

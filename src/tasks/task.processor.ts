@@ -7,12 +7,14 @@ import { Task } from './entities/task.entity';
 import { TaskUpdateChange } from './types/task-update-change.types';
 import { TelegramService } from '../telegram/telegram.service';
 import { PhrasesService } from '../phrases/phrases.service';
-import { YesNoEnum } from '../bitrix/entities/bitrix-response.type';
+import { BitrixTask, YesNoEnum } from '../bitrix/entities/bitrix-response.type';
 
 interface TaskUpdateResult {
   updatedTask: Task;
   changes: TaskUpdateChange[];
   notifyAsCreated?: boolean;
+  notifyAsFixed?: boolean; // Уведомление об исправлении (replicate Y->N или удалён тег «Регулярная»)
+  isRegular?: boolean; // Является ли задача регулярной (replicate=Y или тег «Регулярная»)
 }
 
 @Injectable()
@@ -26,6 +28,34 @@ export class TaskProcessor {
     private readonly phrasesService: PhrasesService,
   ) {}
 
+  /**
+   * Проверяет, является ли задача регулярной (replicate=Y или тег "Регулярная" присутствует)
+   */
+  private isRegularTask(task: BitrixTask): boolean {
+    if (task.replicate === YesNoEnum.Yes) {
+      return true;
+    }
+
+    const tags = task.tags;
+    if (!tags || (Array.isArray(tags) && !tags.length)) {
+      return false;
+    }
+
+    const isRegularTag = (tag: { name?: string; title?: string } | undefined): boolean => {
+      const rawName = tag?.name ?? tag?.title;
+      if (!rawName) {
+        return false;
+      }
+      return rawName.trim().toLowerCase() === 'регулярная';
+    };
+
+    if (Array.isArray(tags)) {
+      return tags.some((tag) => isRegularTag(tag));
+    }
+
+    return Object.values(tags).some((tag) => isRegularTag(tag));
+  }
+
   async newTaskWebhook(dto: TaskWebhookDto) {
     this.logger.log(`Получен вебхук создания задачи ${dto.id}`);
     const result = await this.bitrixService.getTask(dto.id);
@@ -35,14 +65,9 @@ export class TaskProcessor {
     }
 
     const task = result.result.task;
-    const isReplicate = task.replicate === YesNoEnum.Yes;
-    if (isReplicate) {
-      this.logger.debug(
-        `Задача ${dto.id} помечена как регулярная (replicate=Y), пропускаем сохранение и уведомление`,
-      );
-      return null;
-    }
+    const isRegular = this.isRegularTask(task);
 
+    // Всегда сохраняем задачу в БД, даже если она регулярная
     const savedTask = await this.tasksService.create({
       bitrixId: +task.id,
       title: task.title,
@@ -52,8 +77,16 @@ export class TaskProcessor {
       created_by: Number(task.createdBy),
       deadline: task.deadline,
       description: task.description,
-      replicate: isReplicate,
+      replicate: isRegular,
     });
+
+    if (isRegular) {
+      this.logger.debug(
+        `Задача ${dto.id} помечена как регулярная (replicate=${task.replicate}, тег "Регулярная": ${isRegular ? 'да' : 'нет'}), сохранена в БД, уведомление не отправляется`,
+      );
+      // Возвращаем null, чтобы webhook.service не отправлял уведомление
+      return null;
+    }
 
     this.logger.verbose(`Задача ${dto.id} сохранена в БД`);
     return savedTask;
@@ -69,17 +102,32 @@ export class TaskProcessor {
     }
 
     const remoteTask = result.result.task;
-    const isReplicate = remoteTask.replicate === YesNoEnum.Yes;
-    if (isReplicate) {
-      this.logger.debug(
-        `Задача ${dto.id} отмечена как регулярная (replicate=Y), обновление пропущено`,
-      );
-      return null;
-    }
+    const isRegular = this.isRegularTask(remoteTask);
 
     const bitrixId = Number(remoteTask.id);
 
     const currentTask = await this.tasksService.findByBitrixId(bitrixId);
+
+    // Проверяем, было ли изменение статуса регулярной задачи
+    let notifyAsFixed = false;
+    if (currentTask) {
+      const wasRegular = currentTask.replicate === true;
+      const nowRegular = isRegular;
+
+      // Если задача была регулярной (replicate=Y или имела тег «Регулярная»), а теперь стала обычной —
+      // отправляем уведомление об исправлении
+      if (wasRegular && !nowRegular) {
+        notifyAsFixed = true;
+        this.logger.log(
+          `Задача ${bitrixId} исправлена: была регулярной, теперь обычная. Будет отправлено уведомление об исправлении.`,
+        );
+      } else if (!wasRegular && isRegular) {
+        // Случай, когда задача была создана с тегом «Регулярная» (но без replicate=Y), а теперь тег удален
+        // Это сложно отследить без хранения тегов в БД, но если задача была обычной,
+        // а теперь имеет тег «Регулярная» - это не исправление, а наоборот
+        // Пока оставляем только проверку по replicate
+      }
+    }
 
     const normalizeTitle = (value?: string | null) =>
       (value ?? '').trim();
@@ -161,9 +209,23 @@ export class TaskProcessor {
       }
 
       currentTask.created_by = newCreatedBy;
-      currentTask.replicate = isReplicate;
+      currentTask.replicate = isRegular;
 
-      if (!changes.length) {
+      // Если задача регулярная и не было исправления, не отправляем уведомления
+      if (isRegular && !notifyAsFixed) {
+        this.logger.debug(
+          `Задача ${bitrixId} регулярная (replicate=${remoteTask.replicate}, тег "Регулярная": да), обновлена в БД, уведомления не отправляются`,
+        );
+        // Сохраняем изменения в БД, но не отправляем уведомления
+        const savedTask = await this.tasksService.save(currentTask);
+        return {
+          updatedTask: savedTask,
+          changes: [],
+          isRegular: true,
+        };
+      }
+
+      if (!changes.length && !notifyAsFixed) {
         this.logger.debug(
           `Задача ${bitrixId}: данные из Bitrix совпадают с записью в БД, обновление не требуется`,
         );
@@ -178,6 +240,7 @@ export class TaskProcessor {
       return {
         updatedTask: savedTask,
         changes,
+        notifyAsFixed,
       };
     }
 
@@ -192,8 +255,20 @@ export class TaskProcessor {
       created_by: newCreatedBy,
       deadline: newDeadline ? newDeadline.toISOString() : undefined,
       description: remoteTask.description ?? '',
-      replicate: isReplicate,
+      replicate: isRegular,
     });
+
+    // Если задача регулярная, не отправляем уведомление о создании
+    if (isRegular) {
+      this.logger.debug(
+        `Задача ${bitrixId} регулярная, создана в БД, уведомление не отправляется`,
+      );
+      return {
+        updatedTask: createdTask,
+        changes: [],
+        isRegular: true,
+      };
+    }
 
     return {
       updatedTask: createdTask,
@@ -223,7 +298,7 @@ export class TaskProcessor {
         }
 
         const remoteTask = taskResponse.result.task;
-        // Создаем задачу в БД даже если она регулярная (replicate=Y),
+        // Создаем задачу в БД даже если она регулярная,
         // так как для регулярных задач уведомления по комментариям должны проходить
         task = await this.tasksService.create({
           bitrixId: +remoteTask.id,
@@ -234,7 +309,7 @@ export class TaskProcessor {
           created_by: Number(remoteTask.createdBy),
           deadline: remoteTask.deadline,
           description: remoteTask.description ?? '',
-          replicate: remoteTask.replicate === YesNoEnum.Yes,
+          replicate: this.isRegularTask(remoteTask),
         });
 
         this.logger.log(
