@@ -177,6 +177,10 @@ jobs:
               echo "Running add-replicate-column.sql migration..."
               cat migrations/add-replicate-column.sql | ENV_FILE=.production.env docker compose --profile production exec -T -e MYSQL_PWD="${DB_PASS}" mysql mysql -u"${DB_USER}" "${DB_NAME}" 2>&1 || echo "Warning: Migration failed (may already be applied)"
             fi
+            if [ -f migrations/add-chatid-column.sql ]; then
+              echo "Running add-chatid-column.sql migration..."
+              cat migrations/add-chatid-column.sql | ENV_FILE=.production.env docker compose --profile production exec -T -e MYSQL_PWD="${DB_PASS}" mysql mysql -u"${DB_USER}" "${DB_NAME}" 2>&1 || echo "Warning: Migration failed (may already be applied)"
+            fi
             echo "Migrations completed!"
             
             # Загружаем данные из SQL файлов, если они существуют

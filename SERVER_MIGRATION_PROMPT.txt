@@ -1,0 +1,26 @@
+После деплоя через GitHub Actions нужно выполнить миграцию базы данных для добавления столбца chatId в таблицу tasks. Но скорее всего миграция уже выполнилась автоматически в GitHub Actions workflow, так что сначала проверь:
+
+1. Подключись к серверу:
+   ssh root@YOUR_SERVER_IP
+
+2. Перейди в директорию проекта:
+   cd /root/bx-tg-notify
+
+3. Проверь логи последнего деплоя:
+   docker compose --profile production logs app | tail -50
+
+4. Проверь что столбец chatId уже есть в таблице tasks:
+   export $(grep -v '^#' .production.env | grep -v '^$' | xargs)
+   docker exec -it nest_mysql mysql -uroot -p"${DB_PASS}" "${DB_NAME}" -e "DESCRIBE tasks;" | grep chatId
+
+   Если столбец уже есть - ничего делать не нужно!
+
+5. Если столбца нет, выполни миграцию вручную:
+   docker exec -i nest_mysql mysql -uroot -p"${DB_PASS}" "${DB_NAME}" < migrations/add-chatid-column.sql
+
+6. Проверь что миграция прошла успешно:
+   docker exec -it nest_mysql mysql -uroot -p"${DB_PASS}" "${DB_NAME}" -e "SHOW COLUMNS FROM tasks LIKE 'chatId';"
+
+7. Если нужно, перезапусти приложение:
+   ENV_FILE=.production.env docker compose --profile production restart app
+

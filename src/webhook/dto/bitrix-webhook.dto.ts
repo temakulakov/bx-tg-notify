@@ -71,6 +71,11 @@ export class BitrixTaskFields {
   @Transform(toOptionalInt)
   @IsInt()
   TASK_ID?: number;
+
+  @IsOptional()
+  @Transform(toOptionalInt)
+  @IsInt()
+  MESSAGE_ID?: number;
 }
 
 /**

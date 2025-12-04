@@ -31,6 +31,9 @@ export class Task {
   @Column({ type: 'int' })
   created_by: number;
 
+  @Column({ type: 'int', nullable: true })
+  chatId: number | null;
+
   @Column({ type: 'boolean', default: false })
   replicate: boolean;
 

@@ -129,27 +129,86 @@ export class WebhookService {
    * Обрабатывает событие добавления комментария к задаче
    */
   private async handleTaskCommentAdd(dto: BitrixWebhookDto): Promise<void> {
+    this.logger.log(
+      `[handleTaskCommentAdd] ========== НАЧАЛО ОБРАБОТКИ ВЕБХУКА КОММЕНТАРИЯ ==========`,
+    );
+    this.logger.log(
+      `[handleTaskCommentAdd] Событие: ${dto.event}, event_handler_id: ${dto.event_handler_id}`,
+    );
+    
     const taskId = dto.data.FIELDS_AFTER?.TASK_ID;
+    // Для комментариев ID комментария находится в MESSAGE_ID, а не в ID
+    // ID может быть 0 или отсутствовать для комментариев
+    const messageId = dto.data.FIELDS_AFTER?.MESSAGE_ID;
     const commentId = dto.data.FIELDS_AFTER?.ID;
 
-    if (!taskId) {
-      this.logger.warn(
-        `Отсутствует TASK_ID в FIELDS_AFTER для события ${dto.event}`,
+    this.logger.log(
+      `[handleTaskCommentAdd] Данные из вебхука FIELDS_AFTER:`,
+    );
+    this.logger.log(
+      `[handleTaskCommentAdd]   TASK_ID: ${taskId || 'не указан'}`,
+    );
+    this.logger.log(
+      `[handleTaskCommentAdd]   MESSAGE_ID: ${messageId || 'не указан'}`,
+    );
+    this.logger.log(
+      `[handleTaskCommentAdd]   ID: ${commentId || 'не указан'}`,
+    );
+    this.logger.debug(
+      `[handleTaskCommentAdd] Полный FIELDS_AFTER: ${JSON.stringify(dto.data.FIELDS_AFTER, null, 2)}`,
+    );
+
+    if (!taskId || taskId === 0) {
+      this.logger.error(
+        `[handleTaskCommentAdd] ❌ Отсутствует или невалиден TASK_ID в FIELDS_AFTER для события ${dto.event}: ${taskId}`,
       );
       throw new BadRequestException('Task ID is required');
     }
 
-    if (!commentId) {
-      this.logger.warn(
-        `Отсутствует ID комментария в FIELDS_AFTER для события ${dto.event}`,
+    // Для комментариев используем MESSAGE_ID как основной ID комментария
+    // MESSAGE_ID - это реальный ID комментария в Bitrix
+    let finalCommentId: number | undefined;
+    
+    if (messageId && messageId > 0) {
+      finalCommentId = messageId;
+      this.logger.log(
+        `[handleTaskCommentAdd] Используем MESSAGE_ID как ID комментария: ${finalCommentId}`,
+      );
+    } else if (commentId && commentId > 0) {
+      finalCommentId = commentId;
+      this.logger.log(
+        `[handleTaskCommentAdd] Используем ID как ID комментария (MESSAGE_ID не указан): ${finalCommentId}`,
+      );
+    }
+
+    if (!finalCommentId) {
+      this.logger.error(
+        `[handleTaskCommentAdd] ❌ Отсутствует или невалиден ID комментария в FIELDS_AFTER для события ${dto.event}`,
+      );
+      this.logger.error(
+        `[handleTaskCommentAdd]   MESSAGE_ID: ${messageId}, ID: ${commentId}`,
       );
       throw new BadRequestException('Comment ID is required');
     }
 
+    this.logger.log(
+      `[handleTaskCommentAdd] ✅ Валидация пройдена: taskId=${taskId}, commentId=${finalCommentId}`,
+    );
+    this.logger.log(
+      `[handleTaskCommentAdd] Передача обработки в TaskProcessor...`,
+    );
+
     await this.taskProcessor.newTaskCommentWebhook({
       id: taskId,
-      commentId: commentId,
+      commentId: finalCommentId,
     });
+    
+    this.logger.log(
+      `[handleTaskCommentAdd] ✅ Обработка комментария завершена успешно`,
+    );
+    this.logger.log(
+      `[handleTaskCommentAdd] ========== КОНЕЦ ОБРАБОТКИ ВЕБХУКА КОММЕНТАРИЯ ==========`,
+    );
   }
 
   async handleDocumentApproval(query: DocumentApprovalQuery): Promise<void> {

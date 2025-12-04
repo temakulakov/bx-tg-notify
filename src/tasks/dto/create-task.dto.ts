@@ -31,6 +31,10 @@ export class CreateTaskDto {
   created_by: number;
 
   @IsOptional()
+  @IsInt()
+  chatId?: number | null;
+
+  @IsOptional()
   @IsBoolean()
   replicate?: boolean;
 }

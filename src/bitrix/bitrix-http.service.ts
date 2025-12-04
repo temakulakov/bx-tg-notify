@@ -39,8 +39,8 @@ export class BitrixHttpService {
         this.logger.error(message);
 
         if (error.response?.data) {
-          this.logger.verbose(
-            `Error response: ${JSON.stringify(error.response.data)}`,
+          this.logger.error(
+            `❌ Bitrix error response: ${JSON.stringify(error.response.data, null, 2)}`,
           );
         }
 

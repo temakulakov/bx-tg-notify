@@ -93,15 +93,19 @@ export class TaskProcessor {
   }
 
   async updateTaskWebhook(dto: TaskWebhookDto): Promise<TaskUpdateResult | null> {
-    this.logger.log(`Получен вебхук обновления задачи ${dto.id}`);
+    this.logger.log(`[updateTaskWebhook] ========== НАЧАЛО ОБРАБОТКИ ВЕБХУКА ОБНОВЛЕНИЯ ЗАДАЧИ ==========`);
+    this.logger.log(`[updateTaskWebhook] Получен вебхук обновления задачи ${dto.id}`);
 
     const result = await this.bitrixService.getTask(dto.id);
     if (!result?.result?.task) {
-      this.logger.error(`Bitrix не вернул данные задачи ${dto.id}`);
+      this.logger.error(`[updateTaskWebhook] ❌ Bitrix не вернул данные задачи ${dto.id}`);
       return null;
     }
 
     const remoteTask = result.result.task;
+    this.logger.log(
+      `[updateTaskWebhook] Получена задача из Bitrix: id=${remoteTask.id}, title="${remoteTask.title}", chatId=${remoteTask.chatId || 'не указан'}`,
+    );
     const isRegular = this.isRegularTask(remoteTask);
 
     const bitrixId = Number(remoteTask.id);
@@ -155,6 +159,11 @@ export class TaskProcessor {
     const newTitle = normalizeTitle(remoteTask.title);
     const newDescription = normalizeDescription(remoteTask.description);
     const newCreatedBy = Number(remoteTask.createdBy);
+    const chatId = remoteTask.chatId ? Number(remoteTask.chatId) : null;
+    
+    this.logger.log(
+      `[updateTaskWebhook] chatId из Bitrix для задачи ${bitrixId}: ${chatId || 'не указан'}`,
+    );
 
     const changes: TaskUpdateChange[] = [];
 
@@ -210,6 +219,19 @@ export class TaskProcessor {
 
       currentTask.created_by = newCreatedBy;
       currentTask.replicate = isRegular;
+      
+      // Сохраняем chatId из Bitrix
+      const chatId = remoteTask.chatId ? Number(remoteTask.chatId) : null;
+      if (chatId !== currentTask.chatId) {
+        this.logger.log(
+          `[updateTaskWebhook] 🔄 Обновление chatId для задачи ${bitrixId}: ${currentTask.chatId || 'null'} → ${chatId || 'null'}`,
+        );
+        currentTask.chatId = chatId;
+      } else {
+        this.logger.debug(
+          `[updateTaskWebhook] chatId для задачи ${bitrixId} не изменился: ${chatId || 'null'}`,
+        );
+      }
 
       // Если задача регулярная и не было исправления, не отправляем уведомления
       if (isRegular && !notifyAsFixed) {
@@ -248,6 +270,10 @@ export class TaskProcessor {
       `Задача ${bitrixId} не найдена в БД, создаем новую запись перед сравнением`,
     );
 
+    this.logger.log(
+      `[updateTaskWebhook] Создание новой задачи ${bitrixId} в БД с chatId=${chatId || 'null'}`,
+    );
+    
     const createdTask = await this.tasksService.create({
       bitrixId,
       title: remoteTask.title,
@@ -256,7 +282,12 @@ export class TaskProcessor {
       deadline: newDeadline ? newDeadline.toISOString() : undefined,
       description: remoteTask.description ?? '',
       replicate: isRegular,
+      chatId: chatId,
     });
+    
+    this.logger.log(
+      `[updateTaskWebhook] ✅ Задача ${bitrixId} создана в БД, chatId=${createdTask.chatId || 'null'}`,
+    );
 
     // Если задача регулярная, не отправляем уведомление о создании
     if (isRegular) {
@@ -278,15 +309,22 @@ export class TaskProcessor {
   }
   async newTaskCommentWebhook(dto: CommentTaskWebhookDto) {
     this.logger.log(
-      `Получен вебхук комментария к задаче ${dto.id}, комментарий ${dto.commentId}`,
+      `[newTaskCommentWebhook] ========== НАЧАЛО ОБРАБОТКИ ВЕБХУКА КОММЕНТАРИЯ ==========`,
+    );
+    this.logger.log(
+      `[newTaskCommentWebhook] Получен вебхук комментария к задаче ${dto.id}, комментарий ${dto.commentId}`,
     );
 
     try {
       // Проверяем, есть ли задача в БД. Если нет - создаем её
+      this.logger.debug(
+        `[newTaskCommentWebhook] Поиск задачи ${dto.id} в БД...`,
+      );
       let task = await this.tasksService.findByBitrixId(dto.id);
+      
       if (!task) {
         this.logger.log(
-          `Задача ${dto.id} не найдена в БД, получаем данные из Bitrix и создаем запись`,
+          `[newTaskCommentWebhook] ⚠️ Задача ${dto.id} не найдена в БД, получаем данные из Bitrix и создаем запись`,
         );
 
         const taskResponse = await this.bitrixService.getTask(dto.id);
@@ -300,6 +338,11 @@ export class TaskProcessor {
         const remoteTask = taskResponse.result.task;
         // Создаем задачу в БД даже если она регулярная,
         // так как для регулярных задач уведомления по комментариям должны проходить
+        const chatId = remoteTask.chatId ? Number(remoteTask.chatId) : null;
+        this.logger.log(
+          `[newTaskCommentWebhook] Создание задачи ${dto.id} в БД, chatId: ${chatId}`,
+        );
+        
         task = await this.tasksService.create({
           bitrixId: +remoteTask.id,
           title: remoteTask.title,
@@ -310,59 +353,158 @@ export class TaskProcessor {
           deadline: remoteTask.deadline,
           description: remoteTask.description ?? '',
           replicate: this.isRegularTask(remoteTask),
+          chatId: chatId,
         });
 
         this.logger.log(
-          `Задача ${dto.id} создана в БД (replicate=${remoteTask.replicate === YesNoEnum.Yes ? 'Y' : 'N'})`,
+          `[newTaskCommentWebhook] ✅ Задача ${dto.id} создана в БД (replicate=${remoteTask.replicate === YesNoEnum.Yes ? 'Y' : 'N'}, chatId=${task.chatId || 'null'})`,
+        );
+      } else {
+        this.logger.log(
+          `[newTaskCommentWebhook] ✅ Задача ${dto.id} найдена в БД, chatId=${task.chatId || 'null'}`,
         );
       }
 
+      // Получаем chatId из задачи в БД
+      let taskChatId = task.chatId;
+      this.logger.log(
+        `[newTaskCommentWebhook] chatId задачи ${dto.id} из БД: ${taskChatId || 'null'}`,
+      );
+
+      // Если chatId отсутствует в БД, получаем задачу из Bitrix и обновляем
+      if (!taskChatId) {
+        this.logger.warn(
+          `[newTaskCommentWebhook] ⚠️ chatId отсутствует в БД для задачи ${dto.id}, получаем из Bitrix...`,
+        );
+        
+        try {
+          const taskResponse = await this.bitrixService.getTask(dto.id);
+          if (!taskResponse?.result?.task) {
+            this.logger.error(
+              `[newTaskCommentWebhook] ❌ Bitrix не вернул данные задачи ${dto.id} для получения chatId`,
+            );
+            return;
+          }
+
+          const remoteTask = taskResponse.result.task;
+          taskChatId = remoteTask.chatId ? Number(remoteTask.chatId) : null;
+          
+          if (taskChatId) {
+            this.logger.log(
+              `[newTaskCommentWebhook] ✅ Получен chatId из Bitrix: ${taskChatId}, обновляем БД...`,
+            );
+            task.chatId = taskChatId;
+            await this.tasksService.save(task);
+            this.logger.log(
+              `[newTaskCommentWebhook] ✅ chatId сохранен в БД для задачи ${dto.id}`,
+            );
+          } else {
+            this.logger.error(
+              `[newTaskCommentWebhook] ❌ chatId не указан в Bitrix для задачи ${dto.id}`,
+            );
+            this.logger.error(
+              `[newTaskCommentWebhook]   Полные данные задачи из Bitrix: ${JSON.stringify(remoteTask, null, 2)}`,
+            );
+            return;
+          }
+        } catch (error) {
+          this.logger.error(
+            `[newTaskCommentWebhook] ❌ Ошибка при получении chatId из Bitrix для задачи ${dto.id}:`,
+            error,
+          );
+          return;
+        }
+      }
+
+      this.logger.log(
+        `[newTaskCommentWebhook] Запрос комментария ${dto.commentId} для задачи ${dto.id} с chatId=${taskChatId}`,
+      );
+
       const [commentResponse] = await Promise.all([
-        this.bitrixService.getTaskComment(dto.id, dto.commentId),
+        this.bitrixService.getTaskComment(dto.id, dto.commentId, taskChatId),
       ]);
 
-      const commentData =
-        (commentResponse?.result as any)?.comment ?? commentResponse?.result;
+      // Новый API im.dialog.messages.get возвращает данные напрямую в result
+      const commentData = commentResponse?.result;
 
       if (!commentData) {
         this.logger.warn(
-          `Bitrix не вернул данные комментария ${dto.commentId} для задачи ${dto.id}`,
+          `[newTaskCommentWebhook] ⚠️ Bitrix не вернул данные комментария ${dto.commentId} для задачи ${dto.id}`,
+        );
+        this.logger.warn(
+          `[newTaskCommentWebhook]   Использовался chatId=${taskChatId}, LAST_ID=${dto.commentId}`,
         );
         return;
       }
 
-      const postMessage: string =
-        commentData.POST_MESSAGE ?? commentData.postMessage ?? '';
+      this.logger.log(
+        `[newTaskCommentWebhook] ✅ Получены данные комментария ${dto.commentId}`,
+      );
+
+      const postMessage: string = commentData.POST_MESSAGE ?? '';
+      this.logger.log(
+        `[newTaskCommentWebhook] Текст комментария (длина): ${postMessage.length} символов`,
+      );
+      this.logger.debug(
+        `[newTaskCommentWebhook] Текст комментария (первые 200 символов): ${postMessage.substring(0, 200)}...`,
+      );
 
       if (!postMessage.trim()) {
         this.logger.warn(
-          `Комментарий ${dto.commentId} для задачи ${dto.id} пустой, уведомление не требуется`,
+          `[newTaskCommentWebhook] ⚠️ Комментарий ${dto.commentId} для задачи ${dto.id} пустой, уведомление не требуется`,
         );
         return;
       }
 
+      this.logger.debug(
+        `[newTaskCommentWebhook] Проверка на стоп-фразы...`,
+      );
       if (await this.containsStopPhrase(postMessage)) {
-        this.logger.debug(
-          `Комментарий ${dto.commentId} содержит стоп-фразу, уведомление не будет отправлено`,
+        this.logger.log(
+          `[newTaskCommentWebhook] ⚠️ Комментарий ${dto.commentId} содержит стоп-фразу, уведомление не будет отправлено`,
         );
         return;
       }
+      this.logger.debug(
+        `[newTaskCommentWebhook] ✅ Стоп-фразы не найдены`,
+      );
 
-      const authorIdRaw =
-        commentData.AUTHOR_ID ??
-        commentData.authorId ??
-        commentData.CREATED_BY ??
-        commentData.createdBy;
+      const authorIdRaw = commentData.AUTHOR_ID ?? '';
       const authorId = Number(authorIdRaw);
+      this.logger.log(
+        `[newTaskCommentWebhook] Автор комментария: ${authorId || 'не указан'}`,
+      );
 
+      this.logger.debug(
+        `[newTaskCommentWebhook] Извлечение упоминаний пользователей из комментария...`,
+      );
       const recipientIds = this.extractMentionedUserIds(postMessage, authorId);
+      this.logger.log(
+        `[newTaskCommentWebhook] Найдено получателей: ${recipientIds.length} (${recipientIds.join(', ')})`,
+      );
 
       if (!recipientIds.length) {
-        this.logger.debug(
-          `В комментарии ${dto.commentId} не найдено адресатов для уведомления`,
+        this.logger.log(
+          `[newTaskCommentWebhook] ⚠️ В комментарии ${dto.commentId} не найдено адресатов для уведомления`,
         );
         return;
       }
+
+      this.logger.log(
+        `[newTaskCommentWebhook] 📤 Отправка уведомления в Telegram...`,
+      );
+      this.logger.debug(
+        `[newTaskCommentWebhook]   taskId: ${dto.id}`,
+      );
+      this.logger.debug(
+        `[newTaskCommentWebhook]   commentId: ${dto.commentId}`,
+      );
+      this.logger.debug(
+        `[newTaskCommentWebhook]   authorId: ${authorId || 'не указан'}`,
+      );
+      this.logger.debug(
+        `[newTaskCommentWebhook]   recipientIds: ${recipientIds.join(', ')}`,
+      );
 
       await this.telegramService.notifyTaskComment({
         taskId: dto.id,
@@ -371,10 +513,27 @@ export class TaskProcessor {
         recipientIds,
         commentBbcode: postMessage,
       });
+
+      this.logger.log(
+        `[newTaskCommentWebhook] ✅ Уведомление успешно отправлено`,
+      );
+      this.logger.log(
+        `[newTaskCommentWebhook] ========== КОНЕЦ ОБРАБОТКИ ВЕБХУКА КОММЕНТАРИЯ ==========`,
+      );
     } catch (error) {
       this.logger.error(
-        `Ошибка при обработке комментария ${dto.commentId} для задачи ${dto.id}`,
-        error,
+        `[newTaskCommentWebhook] ❌ КРИТИЧЕСКАЯ ОШИБКА при обработке комментария ${dto.commentId} для задачи ${dto.id}:`,
+      );
+      this.logger.error(
+        `[newTaskCommentWebhook]   Ошибка: ${error instanceof Error ? error.message : String(error)}`,
+      );
+      if (error instanceof Error && error.stack) {
+        this.logger.error(
+          `[newTaskCommentWebhook]   Stack trace: ${error.stack}`,
+        );
+      }
+      this.logger.log(
+        `[newTaskCommentWebhook] ========== КОНЕЦ (С ОШИБКОЙ) ==========`,
       );
     }
   }

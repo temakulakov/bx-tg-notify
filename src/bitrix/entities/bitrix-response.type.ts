@@ -59,6 +59,7 @@ export interface BitrixTask {
   creator: BitrixInlineUser;
   responsible: BitrixInlineUser;
   action: object;
+  chatId?: number | string; // ID чата задачи для получения комментариев
 }
 
 export interface BitrixDiskFile {
@@ -82,6 +83,7 @@ export interface BitrixDiskFile {
   DETAIL_URL: string;
 }
 
+// Старый интерфейс для task.commentitem.get (устарел)
 export interface BitrixTaskComment {
   ID: string;
   POST_MESSAGE: string;
@@ -92,4 +94,30 @@ export interface BitrixTaskComment {
   EDIT_DATE?: string;
   UF_TASK_COMMENT_TYPE?: string;
   UF_FORUM_MESSAGE_DOC?: unknown;
+}
+
+// Новый интерфейс для im.dialog.messages.get
+export interface BitrixDialogMessage {
+  id: number | string;
+  chat_id?: number | string;
+  text?: string;
+  message?: string;
+  author_id?: number | string;
+  authorId?: number | string;
+  userId?: number | string;
+  date?: string;
+  unread?: boolean;
+  uuid?: string | null;
+  replaces?: any[];
+  params?: any;
+  disappearing_date?: string | null;
+  [key: string]: any;
+}
+
+export interface BitrixDialogMessagesResponse {
+  chat_id?: number | string;
+  messages: BitrixDialogMessage[];
+  users?: any[];
+  files?: any[];
+  [key: string]: any;
 }
