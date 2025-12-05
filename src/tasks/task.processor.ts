@@ -475,6 +475,14 @@ export class TaskProcessor {
         `[newTaskCommentWebhook] Автор комментария: ${authorId || 'не указан'}`,
       );
 
+      // Пропускаем комментарии от системного пользователя (id = 0)
+      if (authorId === 0) {
+        this.logger.log(
+          `[newTaskCommentWebhook] ⚠️ Комментарий ${dto.commentId} от системного пользователя (id=0), уведомление не будет отправлено`,
+        );
+        return;
+      }
+
       this.logger.debug(
         `[newTaskCommentWebhook] Извлечение упоминаний пользователей из комментария...`,
       );
